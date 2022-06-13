@@ -1,0 +1,38 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>#LESS_WASTE
+        {% block title %}
+        {% endblock title %}
+    </title>
+    <link rel="stylesheet" href="{% static 'styles/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'styles/basestyles.css' %}">
+    {% block scripts %}
+        <script src="{% static 'scripts/bootstrap.min.js' %}"></script>
+    {% endblock scripts %}
+
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <div class="container mt-3">
+        {% if messages %}
+            {% for message in messages %}
+            <div id="alert" class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+    <div class="container mt-3">
+        {% block content %}
+        {% endblock content %}
+    </div>
+</body>
+</html>

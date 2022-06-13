@@ -1,0 +1,19 @@
+body {
+    background-color: whitesmoke;
+    color: darkslategray;
+}
+img.logo {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+}
+
+div.navbar-height {
+    height: 50px;
+}
+
+img.img-re {
+    width: 250px;
+    height: 250px;
+    border-radius: 1%;
+}
