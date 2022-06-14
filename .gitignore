@@ -100,5 +100,9 @@ local_settings.py
 ### PyCharm ###
 .idea/
 
+### images ###
+images/
+
+
     © 2022 GitHub, Inc.
 
