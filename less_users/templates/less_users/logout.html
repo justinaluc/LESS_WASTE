@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}
+- logout
+{% endblock title %}
+{% block content %}
+    <fieldset class=""form-group">
+        <legend class=""border-bottom mb-4>Logged out from <b>#LESS</b></legend>
+    </fieldset>
+    <div class="container-mt-3 col-md-6">
+        <div class="border-top pt-3">
+            <small class="text-muted">
+                Want <b>#LESS</b> back? <a class="ml-2" href="{% url 'login' %}">Log In Again</a>
+            </small>
+        </div>
+    </div>
+{% endblock content %}

@@ -29,7 +29,7 @@
                     <ul class="navbar-nav p-1 align-items-center">
                         {% if user.is_authenticated %}
                         <li class="nav-item">
-                          <a class="nav-link" href="#">Logout</a>
+                          <a class="nav-link" href="{% url 'logout' %}">Logout</a>
                         </li>
                         <li class="nav-item">
                           <a class="nav-link" href="{% url 'profile' %}">{{user.username}}</a>
@@ -39,7 +39,7 @@
                         </span>
                         {% else %}
                         <li class="nav-item">
-                            <a class="nav-link float-end" href="#">Login</a>
+                            <a class="nav-link float-end" href="{% url 'login' %}">Login</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link float-end" href="{% url 'register' %}">Register</a>
