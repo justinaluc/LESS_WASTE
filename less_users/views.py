@@ -1,5 +1,7 @@
 from django.contrib import messages
 from django.shortcuts import render, redirect
+from django.contrib.auth.mixins import LoginRequiredMixin
+
 from django.views import View
 
 from less_users.forms import UserRegisterForm, UserUpdateForm
@@ -24,3 +26,15 @@ class RegisterView(View):
         return redirect('home')
 
 
+class ProfileView(LoginRequiredMixin, View):
+    def get(self, request):
+        u_form = UserUpdateForm(instance=request.user)
+        return render(request, 'less_users/profile.html', {'u_form': u_form})
+
+    def post(self, request):
+        u_form = UserUpdateForm(request.POST, instance=request.user)
+        if u_form.is_valid():
+            u_form.save()
+            messages.success(request, 'Your account has been updated!')
+            return redirect('profile')
+        return render(request, 'less_users/profile.html', {'u_form': u_form})

@@ -32,7 +32,7 @@
                           <a class="nav-link" href="#">Logout</a>
                         </li>
                         <li class="nav-item">
-                          <a class="nav-link" href="#">{{user.username}}</a>
+                          <a class="nav-link" href="{% url 'profile' %}">{{user.username}}</a>
                         </li>
                         <span class="navbar-text py-0 ps-4">
                             <h1>{{user.profile.points}}</h1>
