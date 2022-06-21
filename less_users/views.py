@@ -1,8 +1,26 @@
-from django.shortcuts import render
+from django.contrib import messages
+from django.shortcuts import render, redirect
 from django.views import View
+
+from less_users.forms import UserRegisterForm, UserUpdateForm
 
 
 class HomeView(View):
     def get(self, request):
         return render(request, 'less_users/home.html')
+
+
+class RegisterView(View):
+    def get(self, request):
+        form = UserRegisterForm()
+        return render(request, 'less_users/register.html', {'form': form})
+
+    def post(self, request):
+        form = UserRegisterForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data.get('username')
+            messages.success(request, f'Your account >>{username}<< has been created! You can log in now.')
+        return redirect('home')
+
 
