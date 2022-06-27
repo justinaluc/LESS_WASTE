@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     #local:
     'less_users.apps.LessUsersConfig',
+    'challenges.apps.ChallengesConfig',
 ]
 
 MIDDLEWARE = [
