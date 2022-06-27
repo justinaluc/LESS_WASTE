@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}
+- challenge details
+{% endblock title %}
+
+{% block content %}
+<h1>Details</h1>
+<p>Check out more about this challenge</p>
+    <div class="row g-4 py-1 row-cols-2">
+      <div class="col d-inline align-items">
+        <div class="card">
+          <div class="card-body">
+              <h3 class="card-title d-inline-block">{{ challenge.name }}</h3>
+              <button class="btn btn-outline-dark disabled float-md-end">{{ challenge.points }}</button>
+              <p class="border-top"></p>
+              {% if challenge.points == 1 %}
+                <p>get <b>{{ challenge.points }} point</b> each time you succeed</p>
+              {% else %}
+                <p>get <b>{{ challenge.points }} points</b> each time you succeed</p>
+              {% endif %}
+              <p>new points every <b>{{ challenge.frequency }} days</b> for <b>{{ challenge.duration }} days</b></p>
+              <p><b>hint:</b> {{ challenge.description }}</p>
+                <div class="mt-3 align-items-baseline">
+                    <a href="#" onclick="history.go(-1)" class="btn btn-outline-success">Back</a>
+                </div>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endblock content %}
