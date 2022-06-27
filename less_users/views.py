@@ -8,11 +8,13 @@ from less_users.forms import UserRegisterForm, UserUpdateForm
 
 
 class HomeView(View):
+    """>>hello page<< for both, logged in and visitors"""
     def get(self, request):
         return render(request, 'less_users/home.html')
 
 
 class RegisterView(View):
+    """register new user"""
     def get(self, request):
         form = UserRegisterForm()
         return render(request, 'less_users/register.html', {'form': form})
@@ -27,6 +29,8 @@ class RegisterView(View):
 
 
 class ProfileView(LoginRequiredMixin, View):
+    """show user's profile information and update some data when user is logged in
+    (user's profile is created automatically by using signals when new user is registered)"""
     def get(self, request):
         u_form = UserUpdateForm(instance=request.user)
         return render(request, 'less_users/profile.html', {'u_form': u_form})
