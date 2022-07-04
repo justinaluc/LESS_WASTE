@@ -5,7 +5,7 @@
 {% endblock title %}
 
 {% block content %}
-<h1>Details</h1>
+<h1>details</h1>
 <p>Check out more about this challenge</p>
     <div class="row g-4 py-1 row-cols-2">
       <div class="col d-inline align-items">
@@ -28,8 +28,12 @@
               {% endif %}
               <p><b>hint:</b> {{ challenge.description }}</p>
                 <div class="mt-3 align-items-baseline">
-                    <a href="#" onclick="history.go(-1)" class="btn btn-outline-success">Back</a>
+                    <a href="#" onclick="history.go(-1)" class="btn btn-outline-dark">Back</a>
                 </div>
+              <p class="mt-3 border-top"></p>
+                  {% for category in challenge.category_set.all %}
+                    <a href="{% url 'category_detail' category.id %}" class="btn btn-outline-success mb-1">{{ category.name }}</a>
+                  {% endfor %}
           </div>
         </div>
       </div>

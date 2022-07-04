@@ -31,6 +31,7 @@ class RegisterView(View):
 class ProfileView(LoginRequiredMixin, View):
     """show user's profile information and update some data when user is logged in
     (user's profile is created automatically by using signals when new user is registered)"""
+
     def get(self, request):
         u_form = UserUpdateForm(instance=request.user)
         return render(request, 'less_users/profile.html', {'u_form': u_form})
