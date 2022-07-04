@@ -24,8 +24,8 @@ class Category(models.Model):
 
 
 class CategoryChallenge(models.Model):
-    category = models.ForeignKey(Category, on_delete=models.PROTECT)
-    challenge = models.ForeignKey(Challenge, on_delete=models.PROTECT)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    challenge = models.ForeignKey(Challenge, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.category.name + ': ' + self.challenge.name
