@@ -19,7 +19,13 @@
               {% else %}
                 <p>get <b>{{ challenge.points }} points</b> each time you succeed</p>
               {% endif %}
+              {% if challenge.frequency == 1 and challenge.duration == 1 %}
+              <p>new points <b>everyday</b></p>
+              {% elif challenge.frequency == 1 %}
+               <p>new points <b>everyday</b> for <b>{{ challenge.duration }} days</b></p>
+              {% else %}
               <p>new points every <b>{{ challenge.frequency }} days</b> for <b>{{ challenge.duration }} days</b></p>
+              {% endif %}
               <p><b>hint:</b> {{ challenge.description }}</p>
                 <div class="mt-3 align-items-baseline">
                     <a href="#" onclick="history.go(-1)" class="btn btn-outline-success">Back</a>
