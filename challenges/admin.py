@@ -25,6 +25,7 @@ class ChallengeAdmin(admin.ModelAdmin):
 class CategoryAdmin(admin.ModelAdmin):
     # add many2many relation field into list
     inlines = (CategoryChallengeInline,)
+    ordering = ('name',)
 
 
 class CategoryChallengeAdmin(admin.ModelAdmin):

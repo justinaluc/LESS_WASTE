@@ -103,6 +103,8 @@ local_settings.py
 ### images ###
 images/
 
+### import data ###
+*.csv
 
     © 2022 GitHub, Inc.
 
