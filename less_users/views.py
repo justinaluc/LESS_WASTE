@@ -3,8 +3,10 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from django.views import View
+from django.views.generic import ListView
 
 from less_users.forms import UserRegisterForm, UserUpdateForm
+from less_users.models import UserChallenge
 
 
 class HomeView(View):
@@ -43,3 +45,28 @@ class ProfileView(LoginRequiredMixin, View):
             messages.success(request, 'Your account has been updated!')
             return redirect('profile')
         return render(request, 'less_users/profile.html', {'u_form': u_form})
+
+
+class MyChallengesView(LoginRequiredMixin, ListView):
+    """GET: show all challenges user has taken, both active and passed;
+       POST: for active challenges- allow to add points to user's Profile (total points)
+       and generate Log object by connecting UserChallenge with now-date;
+       for all challenges- allow to delete"""
+    model = UserChallenge
+    template_name = 'less_users/my_challenges.html'
+    paginate_by = 10
+
+    def get(self, request, **kwargs):
+        my_id = request.user.id
+        my_all = UserChallenge.objects.filter(user=my_id)
+        my_active = my_all.filter(is_active=True)
+        if request.GET.get('order_value'):
+            order_value = request.GET.get('order_value')
+            my_all = my_all.order_by(order_value)
+        else:
+            my_all = my_all.order_by('-is_active', 'challenge__name')
+        context = {
+            'my_all': my_all,
+            'my_active': my_active.count(),
+        }
+        return render(request, 'less_users/my_challenges.html', context=context)

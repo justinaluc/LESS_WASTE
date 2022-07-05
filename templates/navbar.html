@@ -20,7 +20,7 @@
                         </li>
                         {% if user.is_authenticated %}
                         <li class="nav-item">
-                          <a class="nav-link collapse-toggle" href="#"><b>My challenges</b></a>
+                          <a class="nav-link collapse-toggle" href="{% url 'my_challenges' %}"><b>My challenges</b></a>
                         </li>
                         {% endif %}
                     </ul>
