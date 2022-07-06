@@ -1,12 +1,16 @@
 from django.contrib import messages
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 
 from django.views import View
 from django.views.generic import ListView
 
 from less_users.forms import UserRegisterForm, UserUpdateForm
 from less_users.models import UserChallenge
+
+from challenges.models import Challenge
 
 
 class HomeView(View):
@@ -70,3 +74,22 @@ class MyChallengesView(LoginRequiredMixin, ListView):
             'my_active': my_active.count(),
         }
         return render(request, 'less_users/my_challenges.html', context=context)
+
+
+def activate_view(request, pk):
+    """check if logged in user has this challenge active already;
+    if not, activate new user_challenge"""
+    challenge_id = int(request.POST.get('activate'))
+    user_challenge = get_object_or_404(UserChallenge, user=request.user, challenge=challenge_id)
+    active = False
+    if user_challenge.exists():
+        if user_challenge.is_active():
+            active = True
+            messages.warning(request, 'You still have this challenge active!')
+        else:
+            active = False
+    else:
+        new_user_challenge = UserChallenge.objects.create(user=request.user, challenge=challenge_id)
+        new_user_challenge.save()
+        messages.success(request, 'You activated new challenge!')
+    return HttpResponseRedirect(reverse('challenge_detail', args=[str(pk)]))
