@@ -16,7 +16,7 @@
                             <p class="border-top pt-2"></p>
                             <small class="card-text">{{ challenge.description }}</small><br>
                             <div class="mt-3 align-items-baseline">
-                                <a href="{% url 'challenge_detail' challenge.id %}" class="btn btn-outline-dark">Details</a>
+                                <a href="{% url 'challenge_detail' challenge.id %}" class="btn btn-outline-secondary">Details</a>
                                 {% if user.is_authenticated %}
                                     {% for item in user.userchallenge_set.all %}
                                         {% if item.challenge == challenge and item.is_active %}
