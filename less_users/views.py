@@ -1,6 +1,9 @@
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from django.core.paginator import Paginator
 
 from django.views import View
 from django.views.generic import ListView
@@ -54,7 +57,7 @@ class MyChallengesView(LoginRequiredMixin, ListView):
        for all challenges- allow to delete"""
     model = UserChallenge
     template_name = 'less_users/my_challenges.html'
-    paginate_by = 10
+    # paginate_by = 10
 
     def get(self, request, **kwargs):
         my_id = request.user.id
@@ -65,8 +68,30 @@ class MyChallengesView(LoginRequiredMixin, ListView):
             my_all = my_all.order_by(order_value)
         else:
             my_all = my_all.order_by('-is_active', 'challenge__name')
+        # self.object_list = my_all
+        # context = self.get_context_data()
+        # context['my_all'] = my_all
+        # context['my_active'] = my_active.count()
         context = {
             'my_all': my_all,
             'my_active': my_active.count(),
         }
         return render(request, 'less_users/my_challenges.html', context=context)
+
+
+def activate_view(request, pk):
+    """it checks if there exists active user_challenge for logged in user and chosen challenge;
+    if not- it creates new active user_challenge"""
+    challenge_id = int(request.POST.get('activate'))
+    user_challenge_exist = \
+        UserChallenge.objects.filter(user=request.user, challenge_id=challenge_id, is_active=True)
+    if len(user_challenge_exist) == 0:
+        user_new_challenge = UserChallenge.objects.create(user=request.user, challenge_id=challenge_id)
+        user_new_challenge.save()
+        messages.success(request, 'You activated new challenge!')
+        return HttpResponseRedirect(reverse('challenge_detail', args=[str(pk)]))
+    else:
+        messages.warning(request, 'You still have this challenge active!')
+        return redirect('my_challenges')
+
+
