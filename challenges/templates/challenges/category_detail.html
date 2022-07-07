@@ -21,6 +21,25 @@
                                 <small class="card-text">{{ challenge.description }}</small><br>
                                 <div class="mt-3 align-items-baseline">
                                     <a href="{% url 'challenge_detail' challenge.id %}" class="btn btn-outline-secondary">Details</a>
+                                    {% if user.is_authenticated %}
+                                        {% for item in user.userchallenge_set.all %}
+                                            {% if item.challenge == challenge and item.is_active %}
+                                                <form action="" method="POST" class="d-inline-block">
+                                                    {% csrf_token %}
+                                                    <button class="btn btn-success" type="submit" name="done" value="{{challenge.id}}">
+                                                        Done!
+                                                    </button>
+                                                </form>
+                                            {% endif %}
+                                        {% endfor %}
+                                        <form action="{% url 'activate_challenge' challenge.pk %}" method="POST" class="d-inline-block">
+                                            {% csrf_token %}
+                                            <button class="btn btn-success" type="submit" name="activate"
+                                                    value="{{challenge.id}}" href="{% url 'my_challenges' %}">
+                                                Activate
+                                            </button>
+                                        </form>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
