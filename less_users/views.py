@@ -82,7 +82,7 @@ def activate_view(request, pk):
     challenge_id = int(request.POST.get('activate'))
     user_challenge = get_object_or_404(UserChallenge, user=request.user, challenge=challenge_id)
     active = False
-    if user_challenge:
+    if user_challenge.exists():
         if user_challenge.is_active():
             active = True
             messages.warning(request, 'You still have this challenge active!')
@@ -91,6 +91,5 @@ def activate_view(request, pk):
     else:
         new_user_challenge = UserChallenge.objects.create(user=request.user, challenge=challenge_id)
         new_user_challenge.save()
-        active = True
         messages.success(request, 'You activated new challenge!')
     return HttpResponseRedirect(reverse('challenge_detail', args=[str(pk)]))
