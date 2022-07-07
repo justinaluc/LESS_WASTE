@@ -3,7 +3,6 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from django.core.paginator import Paginator
 
 from django.views import View
 from django.views.generic import ListView
@@ -57,26 +56,31 @@ class MyChallengesView(LoginRequiredMixin, ListView):
        for all challenges- allow to delete"""
     model = UserChallenge
     template_name = 'less_users/my_challenges.html'
+    # ---> pagination does not work because >get< definition is overwritten !!!
     # paginate_by = 10
 
+    def get_queryset(self):
+        """filters user_challenge queryset to chellenges by logged in user"""
+        my_id = self.request.user
+        return UserChallenge.objects.filter(user=my_id)
+
+    def get_context_data(self, **kwargs):
+        """adds all challenges by looged in user and active ones to the context"""
+        context = super().get_context_data(**kwargs)
+        context['my_all'] = self.get_queryset()
+        context['my_active'] = self.get_queryset().filter(is_active=True).count()
+        return context
+
     def get(self, request, **kwargs):
-        my_id = request.user.id
-        my_all = UserChallenge.objects.filter(user=my_id)
-        my_active = my_all.filter(is_active=True)
+        """adds sorting options (ordering by...) of user_challenge items by: >active< >date< or >alphabetically<
+        ...but probably overwrites >get_context_data< so pagination still does not work..."""
+        my_all = self.get_queryset()
         if request.GET.get('order_value'):
             order_value = request.GET.get('order_value')
             my_all = my_all.order_by(order_value)
         else:
             my_all = my_all.order_by('-is_active', 'challenge__name')
-        # self.object_list = my_all
-        # context = self.get_context_data()
-        # context['my_all'] = my_all
-        # context['my_active'] = my_active.count()
-        context = {
-            'my_all': my_all,
-            'my_active': my_active.count(),
-        }
-        return render(request, 'less_users/my_challenges.html', context=context)
+        return render(request, 'less_users/my_challenges.html', context={'my_all': my_all})
 
 
 def activate_view(request, pk):
