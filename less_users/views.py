@@ -7,8 +7,9 @@ from django.urls import reverse
 from django.views import View
 from django.views.generic import ListView
 
+from challenges.models import Challenge
 from less_users.forms import UserRegisterForm, UserUpdateForm
-from less_users.models import UserChallenge
+from less_users.models import UserChallenge, Profile, Log
 
 
 class HomeView(View):
@@ -51,21 +52,21 @@ class ProfileView(LoginRequiredMixin, View):
 
 class MyChallengesView(LoginRequiredMixin, ListView):
     """GET: show all challenges user has taken, both active and passed;
-       POST: for active challenges- allow to add points to user's Profile (total points)
+       POST: for active challenges- allows adding points to user's Profile (total points)
        and generate Log object by connecting UserChallenge with now-date;
-       for all challenges- allow to delete"""
+       for all challenges- allows deleting"""
     model = UserChallenge
     template_name = 'less_users/my_challenges.html'
     # ---> pagination does not work because >get< definition is overwritten !!!
     # paginate_by = 10
 
     def get_queryset(self):
-        """filters user_challenge queryset to chellenges by logged in user"""
+        """filters user_challenge queryset to challenges by logged in user"""
         my_id = self.request.user
         return UserChallenge.objects.filter(user=my_id)
 
     def get_context_data(self, **kwargs):
-        """adds all challenges by looged in user and active ones to the context"""
+        """adds all challenges by logged in user and active ones to the context"""
         context = super().get_context_data(**kwargs)
         context['my_all'] = self.get_queryset()
         context['my_active'] = self.get_queryset().filter(is_active=True).count()
@@ -82,6 +83,9 @@ class MyChallengesView(LoginRequiredMixin, ListView):
             my_all = my_all.order_by('-is_active', 'challenge__name')
         return render(request, 'less_users/my_challenges.html', context={'my_all': my_all})
 
+    def post(self, request, **kwargs):
+        return redirect('my_challenges')
+
 
 def activate_view(request, pk):
     """it checks if there exists active user_challenge for logged in user and chosen challenge;
@@ -97,5 +101,38 @@ def activate_view(request, pk):
     else:
         messages.warning(request, 'You still have this challenge active!')
         return redirect('my_challenges')
+
+
+def event_view(request, **kwargs):
+    """gain points when challenge is completed; stop challenge or detele challenge """
+    user_id = request.user
+    if 'done' in request.POST:
+        """should check if points can be added (depending on durration and frequncy in model"""
+        challenge_id = int(request.POST.get('done'))
+        points = Challenge.objects.get(id=challenge_id).points
+        this = UserChallenge.objects.get(user_id=user_id, challenge_id=challenge_id, is_active=True)
+        user_challenge_id = this.id
+        this.check_if_active()
+        if this.get_points == points and this.is_active:
+            new_log = Log.objects.create(user_challenge_id=user_challenge_id, points=points)
+            my_profile = Profile.objects.get(user_id=user_id)
+            my_profile.points += points
+            my_profile.save()
+            messages.success(request, f'You have got new points {points} for challenge: {this.challenge.name}!')
+        elif this.get_points == 0 or this.is_active == False:
+            messages.warning(request, f'You cannot get new points for this challenge yet: {this.challenge.name}!')
+    elif 'stop' in request.POST:
+        user_challenge_id = int(request.POST.get('stop'))
+        this = UserChallenge.objects.get(id=user_challenge_id)
+        this.is_active = False
+        this.save()
+        messages.info(request, f'You stopped challenge: {this.challenge.name}. You can activate the new one.')
+    elif 'delete' in request.POST:
+        user_challenge_id = int(request.POST.get('delete'))
+        this = UserChallenge.objects.get(id=user_challenge_id)
+        this.delete()
+        messages.warning(request, f'You have deleted {this.challenge.name} from your challenges')
+    return redirect('my_challenges')
+
 
 

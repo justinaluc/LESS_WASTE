@@ -57,7 +57,7 @@ class UserChallenge(models.Model):
         for 1/day challenge points can be gained each day"""
         points = self.challenge.points
         if len(self.log_set.all()) > 0:
-            last_log = int(self.log_set.last().strftime("%Y%m%d"))
+            last_log = int(self.log_set.last().date.strftime("%Y%m%d"))
         else:
             last_log = 0
         frequency = self.challenge.frequency
