@@ -38,15 +38,23 @@ class ProfileView(LoginRequiredMixin, View):
     (user's profile is created automatically by using signals when new user is registered)"""
 
     def get(self, request):
+        """fills form with existing data"""
         u_form = UserUpdateForm(instance=request.user)
         return render(request, 'less_users/profile.html', {'u_form': u_form})
 
     def post(self, request):
+        """enables updating data if form is valid and any changes were made; shows additionaly messages"""
         u_form = UserUpdateForm(request.POST, instance=request.user)
-        if u_form.is_valid():
-            u_form.save()
-            messages.success(request, 'Your account has been updated!')
-            return redirect('profile')
+        if any(x in u_form.changed_data for x in ['username', 'email', 'first_name', 'last_name']):
+            if u_form.is_valid():
+                u_form.save()
+                messages.success(request, 'Your account has been updated!')
+                return redirect('profile')
+            else:
+                messages.warning(request, 'Your account cannot be updated properly... You enetered invalid data!')
+                return redirect('profile')
+        else:
+            messages.warning(request, 'No changes at your account were made.')
         return render(request, 'less_users/profile.html', {'u_form': u_form})
 
 

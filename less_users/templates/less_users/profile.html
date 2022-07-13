@@ -13,9 +13,9 @@
     </div>
     <div class="col-md-6">
         <form method="POST">
-            {% csrf_token %}
-            <fieldset class=""form-group">
-                <legend class=""border-bottom mb-4>Profile info</legend>
+        {% csrf_token %}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">Profile info</legend>
             {{ u_form|crispy }}
             </fieldset>
             <div class="form-group pt-2 pb-2">
