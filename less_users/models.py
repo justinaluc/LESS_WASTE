@@ -20,6 +20,9 @@ class UserChallenge(models.Model):
     start_date = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
 
+    class Meta:
+        ordering = ["-is_active"]
+
     @staticmethod
     def todays_day_num():
         """change today's date into integer for further calculations"""

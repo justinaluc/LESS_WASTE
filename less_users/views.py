@@ -67,6 +67,12 @@ class MyChallengesView(LoginRequiredMixin, ListView):
     template_name = 'less_users/my_challenges.html'
     # ---> pagination does not work because >get< definition is overwritten !!!
     # paginate_by = 10
+    ordering = ['-start_date']
+
+    # def get_ordering(self):
+    #     """supposed to set ordering from form method GET buttons"""
+    #     ordering = self.request.GET.get('order_value')
+    #     return ordering
 
     def get_queryset(self):
         """filters user_challenge queryset to challenges by logged in user"""
@@ -77,19 +83,17 @@ class MyChallengesView(LoginRequiredMixin, ListView):
         """adds all challenges by logged in user and active ones to the context"""
         context = super().get_context_data(**kwargs)
         context['my_all'] = self.get_queryset()
-        context['my_active'] = self.get_queryset().filter(is_active=True).count()
+        context['my_active'] = self.get_queryset().filter(is_active=True)
         return context
 
     def get(self, request, **kwargs):
-        """adds sorting options (ordering by...) of user_challenge items by: >active< >date< or >alphabetically<
-        ...but probably overwrites >get_context_data< so pagination still does not work..."""
+        """adds sorting options (ordering by...) of user_challenge items by: >active< >date< or >alphabetically<"""
         my_all = self.get_queryset()
+        my_active = self.get_queryset().filter(is_active=True)
         if request.GET.get('order_value'):
             order_value = request.GET.get('order_value')
             my_all = my_all.order_by(order_value)
-        else:
-            my_all = my_all.order_by('-is_active', 'challenge__name')
-        return render(request, 'less_users/my_challenges.html', context={'my_all': my_all})
+        return render(request, 'less_users/my_challenges.html', context={'my_all': my_all, 'my_active': my_active})
 
     def post(self, request, **kwargs):
         return redirect('my_challenges')
