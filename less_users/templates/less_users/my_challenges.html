@@ -58,14 +58,15 @@
                 <div class="container-fluid mt-2">
                     <div class="card">
                         <div class="card-header text h4">
-                            <button class="btn btn-outline-dark disabled">{{ my_challenge.challenge.points }}</button>
                             {{ my_challenge.challenge.name }}
                             <form action="{% url 'event'%}" method="POST" class="d-inline-block float-md-end">
                                 {% csrf_token %}
+                                <button class="btn btn-outline-dark disabled">{{ my_challenge.challenge.points }}</button>
                                 <button class="btn btn-success" type="submit" name="done" value="{{my_challenge.challenge.id}}">Done!</button>
                                 <button class="btn btn-secondary" type="submit" name="stop" value="{{my_challenge.id}}">Stop</button>
                                 <button class="btn btn-warning" type="submit" name="delete" value="{{my_challenge.id}}">Delete</button>
                             </form>
+
                         </div>
                     </div>
                 </div>
@@ -73,10 +74,10 @@
                 <div class="container-fluid mt-2">
                     <div class="card">
                         <div class="card-header text-secondary h4">
-                            <button class="btn btn-outline-dark disabled">{{ my_challenge.challenge.points }}</button>
                             {{ my_challenge.challenge.name }}
                             <form action="{% url 'event'%}" method="POST" class="d-inline-block float-md-end">
                                 {% csrf_token %}
+                                <button class="btn btn-outline-dark disabled">{{ my_challenge.challenge.points }}</button>
                                 <button class="btn btn-warning" type="submit" name="delete" value="{{my_challenge.id}}">Delete</button>
                             </form>
                         </div>

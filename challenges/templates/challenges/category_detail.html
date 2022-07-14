@@ -22,6 +22,7 @@
                                 <div class="mt-3 align-items-baseline">
                                     <a href="{% url 'challenge_detail' challenge.id %}" class="btn btn-outline-secondary">Details</a>
                                     {% if user.is_authenticated %}
+                                        {% if challenge not in my_challenges %}
                                         <form action="{% url 'activate_challenge' challenge.pk %}" method="POST" class="d-inline-block">
                                             {% csrf_token %}
                                             <button class="btn btn-success" type="submit" name="activate"
@@ -29,6 +30,7 @@
                                                 Activate
                                             </button>
                                         </form>
+                                        {% endif %}
                                     {% endif %}
                                 </div>
                             </div>
