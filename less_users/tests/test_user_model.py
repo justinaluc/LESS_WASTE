@@ -12,3 +12,4 @@ def test_check_password(create_user):
     user = User.objects.create_user('test', 'test@test.com', 'test123')
     user.set_password('secret')
     assert user.check_password('secret') is True
+

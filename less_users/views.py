@@ -65,9 +65,9 @@ class MyChallengesView(LoginRequiredMixin, ListView):
        for all challenges- allows deleting"""
     model = UserChallenge
     template_name = 'less_users/my_challenges.html'
+    ordering = ['-start_date']
     # ---> pagination does not work because >get< definition is overwritten !!!
     # paginate_by = 10
-    ordering = ['-start_date']
 
     # def get_ordering(self):
     #     """supposed to set ordering from form method GET buttons"""

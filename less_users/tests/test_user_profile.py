@@ -6,3 +6,4 @@ def test_profile_user_create(user):
 
     assert profile in Profile.objects.all()
     assert user.profile.points == 0
+
