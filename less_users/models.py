@@ -23,6 +23,9 @@ class UserChallenge(models.Model):
     class Meta:
         ordering = ["-is_active"]
 
+    def __str__(self):
+        return f'{self.user}: {self.challenge.name}'
+
     @staticmethod
     def todays_day_num():
         """change today's date into integer for further calculations"""
@@ -80,3 +83,4 @@ class Log(models.Model):
     user_challenge = models.ForeignKey(UserChallenge, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
     points = models.IntegerField(default=0)
+
