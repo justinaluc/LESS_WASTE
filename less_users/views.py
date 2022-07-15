@@ -66,13 +66,6 @@ class MyChallengesView(LoginRequiredMixin, ListView):
     model = UserChallenge
     template_name = 'less_users/my_challenges.html'
     ordering = ['-start_date']
-    # ---> pagination does not work because >get< definition is overwritten !!!
-    # paginate_by = 10
-
-    # def get_ordering(self):
-    #     """supposed to set ordering from form method GET buttons"""
-    #     ordering = self.request.GET.get('order_value')
-    #     return ordering
 
     def get_queryset(self):
         """filters user_challenge queryset to challenges by logged in user"""
