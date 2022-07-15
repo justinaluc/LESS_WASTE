@@ -34,7 +34,6 @@ class CategoryDetailView(ExtraUserChallengeContextMixin, DetailView):
     """generic DetailView to show challenges in particular category"""
     model = Category
 
-
 # views for CHALLENGE functionalities:
 
 
