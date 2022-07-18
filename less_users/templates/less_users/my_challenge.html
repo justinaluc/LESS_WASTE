@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+- my challenge details
+{% endblock title %}
+
+{% block content %}
+    <h1>Hey, {{ user.username }}!</h1>
+    <p>How about knowing more about this challenge?</p>
+    <div class="row align-items-end">
+        <div class="container-fluid mt-2">
+            <div class="card">
+                <div class="card-header text h4">
+                    {{ object.challenge }}
+                </div>
+                <div class="card-body">
+                    {{ object.challenge.description }}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row align-items-end mt-4">
+            <p>You activeted this challenge on <b>{{object.start_date}}</b></p>
+            <p>It should take you <b>{{object.challenge.duration}} days</b> to complete it.</p>
+            <p>You can get points every <b>{{object.challenge.frequency}}days</b> .</p>
+            <p>Last time you got the points for this challenge was on <b>{{object.log_set.last.date }}</b>,</p>
+            <p>so if it is <b>[DATE.now]</b> now, it means you have to wait <b>[XX] days</b>
+                 to get next <b>{{object.challenge.points}} point/s</b></p>
+            <p>and you will complete it on <b>[DATE.finish]</b>.</p>
+            <p class="text-danger"># count it in view function or calculate and add to the context data od detailed my_challenge....</p>
+            <p class="text-danger"># buttons are not working yet here....</p>
+    </div>
+
+    <div class="row align-items-end">
+        {% if object.is_active %}
+            <div class="container-fluid mt-2">
+                <form action="{% url 'event'%}" method="POST" class="d-inline-block float-md-end">
+                    {% csrf_token %}
+                    <button class="btn btn-outline-dark disabled">{{ object.challenge.points }}</button>
+                    <button class="btn btn-success" type="submit" name="done" value="{{object.challenge.id}}">Done!</button>
+                    <button class="btn btn-secondary" type="submit" name="stop" value="{{object.id}}">Stop</button>
+                    <button class="btn btn-warning" type="submit" name="delete" value="{{object.id}}">Delete</button>
+                </form>
+            </div>
+        {% else %}
+            <div class="container-fluid mt-2">
+                <form action="{% url 'event'%}" method="POST" class="d-inline-block float-md-end">
+                    {% csrf_token %}
+                    <button class="btn btn-outline-dark disabled">{{ object.challenge.points }}</button>
+                    <button class="btn btn-warning" type="submit" name="delete" value="{{object.id}}">Delete</button>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+
+{% endblock content %}
+

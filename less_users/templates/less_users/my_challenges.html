@@ -57,8 +57,8 @@
             {% if my_challenge.is_active %}
                 <div class="container-fluid mt-2">
                     <div class="card">
-                        <div class="card-header text h4">
-                            {{ my_challenge.challenge.name }}
+                        <div class="card-header">
+                            <a class="text h4 text-decoration-none text-dark flexbox" href="{% url 'my_challenge' my_challenge.id %}">{{ my_challenge.challenge.name }}</a>
                             <form action="{% url 'event'%}" method="POST" class="d-inline-block float-md-end">
                                 {% csrf_token %}
                                 <button class="btn btn-outline-dark disabled">{{ my_challenge.challenge.points }}</button>

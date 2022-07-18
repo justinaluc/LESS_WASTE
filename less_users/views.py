@@ -5,7 +5,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 
 from django.views import View
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
 
 from challenges.models import Challenge
 from less_users.forms import UserRegisterForm, UserUpdateForm
@@ -90,6 +90,15 @@ class MyChallengesView(LoginRequiredMixin, ListView):
 
     def post(self, request, **kwargs):
         return redirect('my_challenges')
+
+
+class MyChallengeView(LoginRequiredMixin, DetailView):
+    """GET: show details of challenge user has taken;
+       POST: for active challenges- allows adding points to user's Profile (total points)
+       and generate Log object by connecting UserChallenge with now-date;
+       for all challenges- allows deleting"""
+    model = UserChallenge
+    template_name = 'less_users/my_challenge.html'
 
 
 def activate_view(request, pk):
