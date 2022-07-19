@@ -8,14 +8,16 @@
 {% block content %}
     <h1>Hey, {{ user.username }}!</h1>
     <p>How about knowing more about this challenge?</p>
-    <div class="row align-items-end">
+    <div class="row align-items">
         <div class="container-fluid mt-2">
-            <div class="card">
-                <div class="card-header text h4">
-                    {{ object.challenge }}
-                </div>
-                <div class="card-body">
-                    {{ object.challenge.description }}
+            <div class="col col-6 d-inline-flex align-items">
+                <div class="card col d-inline-flex">
+                    <div class="card-header text h4">
+                        {{ object.challenge }}
+                    </div>
+                    <div class="card-body">
+                        {{ object.challenge.description }}
+                    </div>
                 </div>
             </div>
         </div>
