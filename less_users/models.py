@@ -11,7 +11,7 @@ class Profile(models.Model):
     points = models.IntegerField(default=0)
 
     def __str__(self):
-        return f'{self.user.username} profile'
+        return f"{self.user.username} profile"
 
 
 class UserChallenge(models.Model):
@@ -24,7 +24,7 @@ class UserChallenge(models.Model):
         ordering = ["-is_active"]
 
     def __str__(self):
-        return f'{self.user}: {self.challenge.name}'
+        return f"{self.user}: {self.challenge.name}"
 
     @staticmethod
     def todays_day_num():
@@ -45,7 +45,7 @@ class UserChallenge(models.Model):
     def days_left(self):
         """return the rest of the substraction of challenge duration and timedelta between activation date and today;
         ex. duration: 1 month (30 days), activation date: 01.01.2020, today: 28.01.2020.
-        gives: 30 - (28 - 1) = 3 """
+        gives: 30 - (28 - 1) = 3"""
         start = int(self.start_date.date().strftime("%Y%m%d"))
         today = self.todays_day_num()
         challenge_duration = self.challenge.duration
@@ -83,4 +83,3 @@ class Log(models.Model):
     user_challenge = models.ForeignKey(UserChallenge, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
     points = models.IntegerField(default=0)
-

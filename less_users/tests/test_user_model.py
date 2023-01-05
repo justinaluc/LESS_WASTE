@@ -9,7 +9,6 @@ def test_user_create(user):
 
 def test_check_password(create_user):
     # u.set_password, u.check_password
-    user = User.objects.create_user('test', 'test@test.com', 'test123')
-    user.set_password('secret')
-    assert user.check_password('secret') is True
-
+    user = User.objects.create_user("test", "test@test.com", "test123")
+    user.set_password("secret")
+    assert user.check_password("secret") is True

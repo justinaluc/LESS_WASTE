@@ -8,45 +8,97 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Category',
+            name="Category",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
             ],
             options={
-                'verbose_name_plural': 'Categories',
+                "verbose_name_plural": "Categories",
             },
         ),
         migrations.CreateModel(
-            name='Challenge',
+            name="Challenge",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('description', models.TextField()),
-                ('duration', models.IntegerField(help_text='how long it takes to complete challenge')),
-                ('frequency', models.IntegerField(help_text='how often challenge is activated: 1/day, 1/week, 1/month, 1/year')),
-                ('points', models.IntegerField(help_text='how many points are gained each time challenge is completed')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                ("description", models.TextField()),
+                (
+                    "duration",
+                    models.IntegerField(
+                        help_text="how long it takes to complete challenge"
+                    ),
+                ),
+                (
+                    "frequency",
+                    models.IntegerField(
+                        help_text="how often challenge is activated: 1/day, 1/week, 1/month, 1/year"
+                    ),
+                ),
+                (
+                    "points",
+                    models.IntegerField(
+                        help_text="how many points are gained each time challenge is completed"
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='CategoryChallenge',
+            name="CategoryChallenge",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('category', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='challenges.category')),
-                ('challenge', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='challenges.challenge')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "category",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to="challenges.category",
+                    ),
+                ),
+                (
+                    "challenge",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to="challenges.challenge",
+                    ),
+                ),
             ],
             options={
-                'verbose_name_plural': 'Challenges categories',
+                "verbose_name_plural": "Challenges categories",
             },
         ),
         migrations.AddField(
-            model_name='category',
-            name='challenges',
-            field=models.ManyToManyField(through='challenges.CategoryChallenge', to='challenges.challenge'),
+            model_name="category",
+            name="challenges",
+            field=models.ManyToManyField(
+                through="challenges.CategoryChallenge", to="challenges.challenge"
+            ),
         ),
     ]
