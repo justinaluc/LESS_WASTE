@@ -26,11 +26,12 @@ class UserChallenge(models.Model):
     def __str__(self):
         return f"{self.user}: {self.challenge.name}"
 
-    @staticmethod
-    def todays_day_num():
-        """change today's date into integer for further calculations"""
-        today = int(date.today().strftime("%Y%m%d"))
-        return today
+    # usuwam z kodu, bo rozumowanie było błędne!!!
+    # @staticmethod
+    # def todays_day_num():
+    #     """change today's date into integer for further calculations"""
+    #     today = int(date.today().strftime("%Y%m%d"))
+    #     return today
 
     @property
     def total_points(self):
@@ -42,15 +43,15 @@ class UserChallenge(models.Model):
         return total
 
     @property
-    def days_left(self):
+    def days_left(self) -> int:
         """return the rest of the substraction of challenge duration and timedelta between activation date and today;
         ex. duration: 1 month (30 days), activation date: 01.01.2020, today: 28.01.2020.
         gives: 30 - (28 - 1) = 3"""
-        start = int(self.start_date.date().strftime("%Y%m%d"))
-        today = self.todays_day_num()
+        start = self.start_date.date()
+        today = date.today()
         challenge_duration = self.challenge.duration
-        days_left = challenge_duration - (today - start)
-        return int(days_left)
+        days_left = challenge_duration - (today - start).days
+        return days_left
 
     @property
     def get_points(self):
@@ -62,15 +63,15 @@ class UserChallenge(models.Model):
         and this challenge makes possible to get points once for every 7 days;
         for 1/day challenge points can be gained each day"""
         points = self.challenge.points
-        if len(self.log_set.all()) > 0:
-            last_log = int(self.log_set.last().date.strftime("%Y%m%d"))
-        else:
-            last_log = 0
         frequency = self.challenge.frequency
-        today = self.todays_day_num()
-        if today - last_log > frequency:
+        today = date.today()
+        if len(self.log_set.all()) > 0:
+            last_log = self.log_set.last().date
+            if (today - last_log.date()).days >= frequency:
+                return points
+            return 0
+        else:
             return points
-        return 0
 
     def check_if_active(self):
         """check if challenge is not out-of-date; deactivate user_challenge if days_left is less then 0"""
