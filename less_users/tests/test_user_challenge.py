@@ -14,3 +14,7 @@ def test_user_challenge_deactivation(create_user_challenge):
     user_challenge.is_active = False
 
     assert user_challenge.is_active != True
+
+
+def test_user_challenge_done(challenge_1_day):
+    pass

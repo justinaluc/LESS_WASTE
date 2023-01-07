@@ -42,14 +42,44 @@ def challenge_1_day(db):
     )
 
 
-# @pytest.fixture(scope='function')
-# def challenge_2_week(db):
-#     return Challenge.objects.create('challenge_2_week', 'complete this challenge in 1 week', 7, 7, 2)
-#
-#
-# @pytest.fixture(scope='function')
-# def challenge_3_month(db):
-#     return Challenge.objects.create('challenge_3_month', 'complete this challenge in 1 month', 28, 7, 5)
+@pytest.fixture(scope='function')
+def challenge_2_week(db):
+    return Challenge.objects.create('challenge_2_week', 'complete this challenge in 1 week', 7, 7, 2)
+
+
+@pytest.fixture(scope='function')
+def challenge_3_month(db):
+    return Challenge.objects.create('challenge_3_month', 'complete this challenge in 1 month', 28, 7, 5)
+
+
+@pytest.fixture(scope='function')
+def challenges(db):
+    chlgs = []
+    chall = Challenge.objects.create(
+        name='challenge_3_month',
+        description='complete this challenge in 1 month',
+        duration=28,
+        frequency=7,
+        points=5,
+    )
+    chlgs.append(chall)
+    chall = Challenge.objects.create(
+        name='challenge_2_week',
+        description='complete this challenge in 1 week',
+        duration=7,
+        frequency=7,
+        points=2,
+    )
+    chlgs.append(chall)
+    chall = Challenge.objects.create(
+        name="challenge_1_day",
+        description="complete this challenge in 1 day",
+        duration=1,
+        frequency=1,
+        points=1,
+    )
+    chlgs.append(chall)
+    return chlgs
 
 
 # new test of user_challenge activation
@@ -61,3 +91,4 @@ def create_user_challenge(db, user, challenge_1_day):
     new_challenge = UserChallenge(user=user, challenge=challenge, start_date=date)
     new_challenge.save()
     return new_challenge
+
