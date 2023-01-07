@@ -47,7 +47,7 @@ class ChallengeListView(ExtraUserChallengeContextMixin, ListView):
 
     model = Challenge
     ordering = ["name"]
-    paginate_by = 12
+    paginate_by = 8
 
 
 class ChallengeDetailView(ExtraUserChallengeContextMixin, DetailView):
