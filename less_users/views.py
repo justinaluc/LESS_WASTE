@@ -13,7 +13,7 @@ from less_users.models import UserChallenge, Profile, Log
 
 
 class HomeView(View):
-    """>>hello page<< for both, logged in and visitors"""
+    """>>hello page<< for both: logged in users and visitors"""
 
     def get(self, request):
         return render(request, "less_users/home.html")
@@ -138,7 +138,7 @@ def activate_view(request, pk):
 
 
 def event_view(request, **kwargs):
-    """gain points when challenge is completed; stop challenge or detele challenge"""
+    """gain points when challenge is completed; stop challenge or delete challenge"""
     user_id = request.user
     if "done" in request.POST:
         """should check if points can be added (depending on durration and frequncy in model"""

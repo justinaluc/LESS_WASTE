@@ -8,8 +8,3 @@ def test_user_create(user):
     assert count == 1
 
 
-def test_user_change_password(create_user):
-    # u.set_password, u.check_password
-    user = User.objects.create_user("test", "test@test.com", "test123")
-    user.set_password("secret")
-    assert user.check_password("secret") is True

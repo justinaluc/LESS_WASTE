@@ -5,7 +5,7 @@ from less_users.forms import UserRegisterForm, UserUpdateForm
 def test_create_user_profile(user):
     profile = user.profile
 
-    assert profile in Profile.objects.all()
+    assert Profile.objects.filter(id=profile.id).exists()
     assert user.profile.points == 0
 
 

@@ -18,3 +18,11 @@ def test_user_challenge_deactivation(create_user_challenge):
 
 def test_user_challenge_done(challenge_1_day):
     pass
+
+
+def test_user_challenge_model_days_left(user, challenge_3_month, create_user_challenge_month):
+    user_challenge = create_user_challenge_month
+
+
+
+
