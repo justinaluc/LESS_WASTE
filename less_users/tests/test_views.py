@@ -20,11 +20,8 @@ def test_view_challenges_unauthorised(client, challenges):
 
     context = response.context
 
-    # assert context['object_list'].count() == len(challenges)
+    assert context['object_list'].count() == len(challenges)
     assert set(context['object_list']) == set(challenges)
-
-    for challenge in challenges:
-        assert challenge in context['object_list']
 
 
 @pytest.mark.django_db
@@ -43,4 +40,10 @@ def test_view_my_challenges_authorised(client, user):
     response = client.get(url)
 
     assert response.status_code == 200
+
+
+
+
+
+
 

@@ -26,13 +26,6 @@ class UserChallenge(models.Model):
     def __str__(self):
         return f"{self.user}: {self.challenge.name}"
 
-    # usuwam z kodu, bo rozumowanie było błędne!!!
-    # @staticmethod
-    # def todays_day_num():
-    #     """change today's date into integer for further calculations"""
-    #     today = int(date.today().strftime("%Y%m%d"))
-    #     return today
-
     @property
     def total_points(self):
         """calculate total points for particular user_challenge if any logs were registered"""
@@ -44,7 +37,7 @@ class UserChallenge(models.Model):
 
     @property
     def days_left(self) -> int:
-        """return the rest of the substraction of challenge duration and timedelta between activation date and today;
+        """return the rest of the subtraction of challenge duration and timedelta between activation date and today;
         ex. duration: 1 month (30 days), activation date: 01.01.2020, today: 28.01.2020.
         gives: 30 - (28 - 1) = 3"""
         start = self.start_date.date()
@@ -65,7 +58,7 @@ class UserChallenge(models.Model):
         points = self.challenge.points
         frequency = self.challenge.frequency
         today = date.today()
-        if len(self.log_set.all()) > 0:
+        if self.log_set.exists():
             last_log = self.log_set.last().date
             if (today - last_log.date()).days >= frequency:
                 return points
@@ -74,7 +67,7 @@ class UserChallenge(models.Model):
             return points
 
     def check_if_active(self):
-        """check if challenge is not out-of-date; deactivate user_challenge if days_left is less then 0"""
+        """check if challenge is not out-of-date; deactivate user_challenge if days_left is less than 0"""
         if self.days_left < 0:
             self.is_active = False
         return self.is_active

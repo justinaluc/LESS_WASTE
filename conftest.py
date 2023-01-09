@@ -58,7 +58,7 @@ def challenge_3_month(db):
     return Challenge.objects.create(
         name='challenge_3_month',
         description='complete this challenge in 1 month',
-        duration=28,
+        duration=30,
         frequency=7,
         points=5,
     )
@@ -70,7 +70,7 @@ def challenges(db):
     chall = Challenge.objects.create(
         name='challenge_3_month',
         description='complete this challenge in 1 month',
-        duration=28,
+        duration=30,
         frequency=7,
         points=5,
     )
@@ -109,7 +109,8 @@ def create_user_challenge(db, user, challenge_1_day):
 def create_user_challenge_month(db, user, challenge_3_month):
     user = user
     challenge = challenge_3_month
-    date = datetime.datetime.now()
-    new_challenge = UserChallenge(user=user, challenge=challenge, start_date=date)
+    start_date = datetime.datetime.now()
+    new_challenge = UserChallenge(user=user, challenge=challenge, start_date=start_date)
     new_challenge.save()
     return new_challenge
+
