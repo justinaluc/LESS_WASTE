@@ -37,5 +37,4 @@ urlpatterns = [
     ),
     path("activate/<int:pk>/", activate_view, name="activate_challenge"),
     path("event/", view_events, name="event"),
-
 ]

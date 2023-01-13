@@ -143,9 +143,7 @@ def event_view_done(request):
     )
     user_challenge.check_if_active()
     if user_challenge.get_points == points and user_challenge.is_active:
-        new_log = Log.objects.create(
-            user_challenge_id=user_challenge.id, points=points
-        )
+        new_log = Log.objects.create(user_challenge_id=user_challenge.id, points=points)
         my_profile = Profile.objects.get(user_id=user_id)
         my_profile.points += points
         my_profile.save()
@@ -195,4 +193,3 @@ def view_events(request):
     if "delete" in request.POST:
         event_view_delete(request)
     return redirect("my_challenges")
-

@@ -42,7 +42,9 @@ class UserChallenge(models.Model):
         to count end_date, activation date (start_date) and timedelta of challenge duration are summed;
         ex. activation date: 01.01.2020, duration: 1 month (30 days), today: 28.01.2020.
         (01.01.2020 + timedelta(30)) - 28.01.2020 gives 3 days"""
-        end_date = self.start_date.date() + datetime.timedelta(days=self.challenge.duration)
+        end_date = self.start_date.date() + datetime.timedelta(
+            days=self.challenge.duration
+        )
         today = date.today()
         return (end_date - today).days
 
