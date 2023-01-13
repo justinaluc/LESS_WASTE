@@ -15,14 +15,9 @@ def user(db):
 
 
 @pytest.fixture(scope="function")
-def test_password():
-    return "testKlara123"
-
-
-@pytest.fixture(scope="function")
-def create_user(db, django_user_model, test_password):
+def create_user(db, django_user_model):
     def make_user(**kwargs):
-        kwargs["password"] = test_password
+        kwargs["password"] = "testKlara123"
 
         if "username" not in kwargs:
             kwargs["username"] = str(uuid.uuid4())
@@ -42,56 +37,53 @@ def challenge_1_day(db):
     )
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def challenge_2_week(db):
     return Challenge.objects.create(
-        name='challenge_2_week',
-        description='complete this challenge in 1 week',
+        name="challenge_2_week",
+        description="complete this challenge in 1 week",
         duration=7,
         frequency=7,
         points=2,
     )
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def challenge_3_month(db):
     return Challenge.objects.create(
-        name='challenge_3_month',
-        description='complete this challenge in 1 month',
+        name="challenge_3_month",
+        description="complete this challenge in 1 month",
         duration=30,
         frequency=7,
         points=5,
     )
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def challenges(db):
-    chlgs = []
-    chall = Challenge.objects.create(
-        name='challenge_3_month',
-        description='complete this challenge in 1 month',
-        duration=30,
-        frequency=7,
-        points=5,
-    )
-    chlgs.append(chall)
-    chall = Challenge.objects.create(
-        name='challenge_2_week',
-        description='complete this challenge in 1 week',
-        duration=7,
-        frequency=7,
-        points=2,
-    )
-    chlgs.append(chall)
-    chall = Challenge.objects.create(
-        name="challenge_1_day",
-        description="complete this challenge in 1 day",
-        duration=1,
-        frequency=1,
-        points=1,
-    )
-    chlgs.append(chall)
-    return chlgs
+    return [
+        Challenge.objects.create(
+            name="challenge_3_month",
+            description="complete this challenge within 28 days",
+            duration=30,
+            frequency=7,
+            points=5,
+        ),
+        Challenge.objects.create(
+            name="challenge_2_week",
+            description="complete this challenge within 7 days",
+            duration=7,
+            frequency=7,
+            points=2,
+        ),
+        Challenge.objects.create(
+            name="challenge_1_day",
+            description="complete this challenge within 1 day",
+            duration=1,
+            frequency=1,
+            points=1,
+        ),
+    ]
 
 
 # new test of user_challenge activation
@@ -113,4 +105,3 @@ def create_user_challenge_month(db, user, challenge_3_month):
     new_challenge = UserChallenge(user=user, challenge=challenge, start_date=start_date)
     new_challenge.save()
     return new_challenge
-

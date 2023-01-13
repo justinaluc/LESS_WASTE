@@ -50,10 +50,7 @@ class ProfileView(LoginRequiredMixin, View):
     def post(self, request):
         """enables updating data if form is valid and any changes were made; shows additionaly messages"""
         u_form = UserUpdateForm(request.POST, instance=request.user)
-        if any(
-            x in u_form.changed_data
-            for x in ["username", "email", "first_name", "last_name"]
-        ):
+        if u_form.has_changed():
             if u_form.is_valid():
                 u_form.save()
                 messages.success(request, "Your account has been updated!")
@@ -121,61 +118,81 @@ class MyChallengeView(LoginRequiredMixin, DetailView):
 def activate_view(request, pk):
     """it checks if there exists active user_challenge for logged in user and chosen challenge;
     if not- it creates new active user_challenge"""
-    user_challenge_exist = UserChallenge.objects.filter(
+    user_challenge = UserChallenge.objects.filter(
         user=request.user, challenge_id=pk, is_active=True
     )
-    if user_challenge_exist.exists():
+    if user_challenge.exists():
         messages.warning(request, "You still have this challenge active!")
         return redirect("my_challenges")
     else:
-        user_new_challenge = UserChallenge.objects.create(user=request.user, challenge_id=pk)
-        user_new_challenge.save()
+        user_new_challenge = UserChallenge.objects.create(
+            user=request.user, challenge_id=pk
+        )
         messages.success(request, "You activated new challenge!")
         return HttpResponseRedirect(reverse("challenge_detail", args=[str(pk)]))
 
 
-def event_view(request, **kwargs):
-    """gain points when challenge is completed; stop challenge or delete challenge"""
+def event_view_done(request):
+    """gain points when user challenge is completed by clicking >done< button;
+    should check if points can be added (depending on duration and frequency in model)"""
     user_id = request.user
-    if "done" in request.POST:
-        """should check if points can be added (depending on duration and frequency in model"""
-        challenge_id = int(request.POST.get("done"))
-        points = Challenge.objects.get(id=challenge_id).points
-        user_challenge = UserChallenge.objects.get(
-            user_id=user_id, challenge_id=challenge_id, is_active=True
+    challenge_id = int(request.POST.get("done"))
+    points = Challenge.objects.get(id=challenge_id).points
+    user_challenge = UserChallenge.objects.get(
+        user_id=user_id, challenge_id=challenge_id, is_active=True
+    )
+    user_challenge.check_if_active()
+    if user_challenge.get_points == points and user_challenge.is_active:
+        new_log = Log.objects.create(
+            user_challenge_id=user_challenge.id, points=points
         )
-        user_challenge_id = user_challenge.id
-        user_challenge.check_if_active()
-        if user_challenge.get_points == points and user_challenge.is_active:
-            new_log = Log.objects.create(
-                user_challenge_id=user_challenge_id, points=points
-            )
-            my_profile = Profile.objects.get(user_id=user_id)
-            my_profile.points += points
-            my_profile.save()
-            messages.success(
-                request,
-                f"You have got new points {points} for challenge: {user_challenge.challenge}!",
-            )
-        elif user_challenge.get_points == 0 or user_challenge.is_active == False:
-            messages.warning(
-                request,
-                f"You cannot get new points for this challenge yet: {user_challenge.challenge}!",
-            )
-    elif "stop" in request.POST:
-        user_challenge_id = int(request.POST.get("stop"))
-        user_challenge = UserChallenge.objects.get(id=user_challenge_id)
-        user_challenge.is_active = False
-        user_challenge.save()
-        messages.info(
+        my_profile = Profile.objects.get(user_id=user_id)
+        my_profile.points += points
+        my_profile.save()
+        messages.success(
             request,
-            f"You stopped challenge: {user_challenge.challenge}. You can activate the new one.",
+            f"You have just got {points} points for challenge: {user_challenge.challenge}!",
         )
-    elif "delete" in request.POST:
-        user_challenge_id = int(request.POST.get("delete"))
-        user_challenge = UserChallenge.objects.get(id=user_challenge_id)
-        user_challenge.delete()
+    elif user_challenge.get_points == 0 or not user_challenge.is_active:
         messages.warning(
-            request, f"You have deleted {user_challenge.challenge} from your challenges"
+            request,
+            f"You cannot get new points for this challenge yet: {user_challenge.challenge}. "
+            f"You have already did it in last {user_challenge.challenge.frequency} days "
+            f"or its duration period passed",
         )
     return redirect("my_challenges")
+
+
+def event_view_stop(request):
+    """stop user challenge despite its duration"""
+    user_challenge_id = int(request.POST.get("stop"))
+    user_challenge = UserChallenge.objects.get(id=user_challenge_id)
+    user_challenge.is_active = False
+    user_challenge.save()
+    messages.info(
+        request,
+        f"You stopped challenge: {user_challenge.challenge}. You can activate the new one.",
+    )
+    return redirect("my_challenges")
+
+
+def event_view_delete(request):
+    """delete user challenge from the list of my challenges"""
+    user_challenge_id = int(request.POST.get("delete"))
+    user_challenge = UserChallenge.objects.get(id=user_challenge_id)
+    user_challenge.delete()
+    messages.warning(
+        request, f"You have deleted {user_challenge.challenge} from your challenges."
+    )
+    return redirect("my_challenges")
+
+
+def view_events(request):
+    if "done" in request.POST:
+        event_view_done(request)
+    if "stop" in request.POST:
+        event_view_stop(request)
+    if "delete" in request.POST:
+        event_view_delete(request)
+    return redirect("my_challenges")
+

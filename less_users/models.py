@@ -1,3 +1,4 @@
+import datetime
 from datetime import date
 
 from django.db import models
@@ -24,7 +25,7 @@ class UserChallenge(models.Model):
         ordering = ["-is_active"]
 
     def __str__(self):
-        return f"{self.user}: {self.challenge.name}"
+        return f"{self.user}: {self.challenge}"
 
     @property
     def total_points(self):
@@ -37,14 +38,13 @@ class UserChallenge(models.Model):
 
     @property
     def days_left(self) -> int:
-        """return the rest of the subtraction of challenge duration and timedelta between activation date and today;
-        ex. duration: 1 month (30 days), activation date: 01.01.2020, today: 28.01.2020.
-        gives: 30 - (28 - 1) = 3"""
-        start = self.start_date.date()
+        """return the rest of the subtraction of end_date and today;
+        to count end_date, activation date (start_date) and timedelta of challenge duration are summed;
+        ex. activation date: 01.01.2020, duration: 1 month (30 days), today: 28.01.2020.
+        (01.01.2020 + timedelta(30)) - 28.01.2020 gives 3 days"""
+        end_date = self.start_date.date() + datetime.timedelta(days=self.challenge.duration)
         today = date.today()
-        challenge_duration = self.challenge.duration
-        days_left = challenge_duration - (today - start).days
-        return days_left
+        return (end_date - today).days
 
     @property
     def get_points(self):

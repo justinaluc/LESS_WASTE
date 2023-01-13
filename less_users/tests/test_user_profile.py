@@ -1,5 +1,8 @@
 from less_users.models import Profile
-from less_users.forms import UserRegisterForm, UserUpdateForm
+from less_users.forms import (
+    UserRegisterForm,
+    UserUpdateForm,
+)  # do przyszłego wykorzystania
 
 
 def test_create_user_profile(user):

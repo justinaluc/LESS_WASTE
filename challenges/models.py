@@ -32,7 +32,7 @@ class CategoryChallenge(models.Model):
     challenge = models.ForeignKey(Challenge, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.category.name + ": " + self.challenge.name
+        return f"{self.category}: {self.challenge}"
 
     class Meta:
         verbose_name_plural = "Challenges categories"

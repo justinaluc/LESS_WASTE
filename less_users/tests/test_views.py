@@ -1,11 +1,11 @@
-import pytest as pytest
+import pytest
 from django.urls import reverse
 
 from challenges.models import Category, Challenge
 
 
 def test_view_home(client):
-    url = reverse('home')
+    url = reverse("home")
     response = client.get(url)
 
     assert response.status_code == 200
@@ -13,37 +13,30 @@ def test_view_home(client):
 
 @pytest.mark.django_db
 def test_view_challenges_unauthorised(client, challenges):
-    url = reverse('challenge_list')
+    url = reverse("challenge_list")
     response = client.get(url)
 
     assert response.status_code == 200
 
     context = response.context
 
-    assert context['object_list'].count() == len(challenges)
-    assert set(context['object_list']) == set(challenges)
+    assert context["object_list"].count() == len(challenges)
+    assert set(context["object_list"]) == set(challenges)
 
 
 @pytest.mark.django_db
 def test_view_my_challenges_unauthorised(client):
-    url = reverse('my_challenges')
+    url = reverse("my_challenges")
     response = client.get(url)
 
     assert response.status_code == 302
-    assert 'login' in response.url
+    assert "login/?next=/my_challenges/" in response.url
 
 
 @pytest.mark.django_db
 def test_view_my_challenges_authorised(client, user):
-    url = reverse('my_challenges')
+    url = reverse("my_challenges")
     client.force_login(user)
     response = client.get(url)
 
     assert response.status_code == 200
-
-
-
-
-
-
-

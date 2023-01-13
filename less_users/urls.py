@@ -8,7 +8,7 @@ from less_users.views import (
     MyChallengesView,
     MyChallengeView,
     activate_view,
-    event_view,
+    view_events,
 )
 
 urlpatterns = [
@@ -36,5 +36,6 @@ urlpatterns = [
         name="my_challenge",
     ),
     path("activate/<int:pk>/", activate_view, name="activate_challenge"),
-    path("event/", event_view, name="event"),
+    path("event/", view_events, name="event"),
+
 ]
