@@ -88,20 +88,10 @@ def challenges(db):
 
 # new test of user_challenge activation
 @pytest.fixture(scope="function")
-def create_user_challenge(db, user, challenge_1_day):
-    user = user
-    challenge = challenge_1_day
-    date = datetime.datetime.now()
-    new_challenge = UserChallenge(user=user, challenge=challenge, start_date=date)
-    new_challenge.save()
-    return new_challenge
+def create_user_challenge_day(db, user, challenge_1_day):
+    return UserChallenge.objects.create(user=user, challenge=challenge_1_day)
 
 
 @pytest.fixture(scope="function")
 def create_user_challenge_month(db, user, challenge_3_month):
-    user = user
-    challenge = challenge_3_month
-    start_date = datetime.datetime.now()
-    new_challenge = UserChallenge(user=user, challenge=challenge, start_date=start_date)
-    new_challenge.save()
-    return new_challenge
+    return UserChallenge.objects.create(user=user, challenge=challenge_3_month)

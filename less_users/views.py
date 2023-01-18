@@ -48,7 +48,7 @@ class ProfileView(LoginRequiredMixin, View):
         return render(request, "less_users/profile.html", {"u_form": u_form})
 
     def post(self, request):
-        """enables updating data if form is valid and any changes were made; shows additionaly messages"""
+        """enables updating data if form is valid and any changes were made; shows additional messages"""
         u_form = UserUpdateForm(request.POST, instance=request.user)
         if u_form.has_changed():
             if u_form.is_valid():
@@ -58,7 +58,7 @@ class ProfileView(LoginRequiredMixin, View):
             else:
                 messages.warning(
                     request,
-                    "Your account cannot be updated properly... You enetered invalid data!",
+                    "Your account cannot be updated properly... You entered invalid data!",
                 )
                 return redirect("profile")
         else:
