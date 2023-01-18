@@ -1,5 +1,4 @@
-import datetime
-from datetime import date
+from datetime import date, timedelta
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -63,7 +62,7 @@ class UserChallenge(models.Model):
         to count end_date, activation date (start_date) and timedelta of challenge duration are summed;
         ex. activation date: 01.01.2020, duration: 1 month (30 days), today: 28.01.2020.
         (01.01.2020 + timedelta(30)) - 28.01.2020 gives 3 days"""
-        end_date = self.start_date.date() + datetime.timedelta(
+        end_date = self.start_date.date() + timedelta(
             days=self.challenge.duration
         )
         return (end_date - todays_date).days

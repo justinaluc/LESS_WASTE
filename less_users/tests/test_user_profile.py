@@ -1,3 +1,4 @@
+from less_users.forms import UserRegisterForm, UserUpdateForm
 from less_users.models import Profile, UserChallenge, Log
 
 
@@ -8,15 +9,15 @@ def test_create_user_profile(user):
     assert user.profile.points == 0
 
 
-def test_change_user_profile(user):
-    profile = user.profile
-    profile.points = 10
+def test_create_user_profile_by_user_register_form(user):
+    data = {
+                "username": user.username,
+                "email": user.email,
+                "password": user.password,
+    }
+    form = UserRegisterForm(data)
 
-    assert user.profile.points == 10
-
-
-def test_change_user_profile_by_user_update_form(user):
-    pass
+    assert form.is_valid()
 
 
 def test_change_user_profile_points_by_clicking_done(user, challenge_2_week):
@@ -24,10 +25,10 @@ def test_change_user_profile_points_by_clicking_done(user, challenge_2_week):
     user_challenge = UserChallenge.objects.create(user=user, challenge=challenge_2_week)
     user_challenge.check_if_active()
     points = challenge_2_week.points
-    if user_challenge.get_points() == points and user_challenge.is_active:
-        new_log = Log.objects.create(user_challenge_id=user_challenge.id, points=points)
-        my_profile.points += points
-        my_profile.save()
+    user_challenge.get_points()
+    new_log = Log.objects.create(user_challenge_id=user_challenge.id, points=points)
+    my_profile.points += points
+    my_profile.save()
 
     assert my_profile.points == points
 

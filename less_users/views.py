@@ -135,28 +135,27 @@ def activate_view(request, pk):
 def event_view_done(request):
     """gain points when user challenge is completed by clicking >done< button;
     should check if points can be added (depending on duration and frequency in model)"""
-    user_id = request.user
     challenge_id = int(request.POST.get("done"))
     points = Challenge.objects.get(id=challenge_id).points
     user_challenge = UserChallenge.objects.get(
-        user_id=user_id, challenge_id=challenge_id, is_active=True
+        user_id=request.user, challenge_id=challenge_id, is_active=True
     )
     user_challenge.check_if_active()
     if user_challenge.get_points == points and user_challenge.is_active:
         new_log = Log.objects.create(user_challenge_id=user_challenge.id, points=points)
-        my_profile = Profile.objects.get(user_id=user_id)
+        my_profile = request.user.profile
         my_profile.points += points
         my_profile.save()
         messages.success(
             request,
             f"You have just got {points} points for challenge: {user_challenge.challenge}!",
         )
-    elif user_challenge.get_points == 0 or not user_challenge.is_active:
+    else:
         messages.warning(
             request,
             f"You cannot get new points for this challenge yet: {user_challenge.challenge}. "
-            f"You have already did it in last {user_challenge.challenge.frequency} days "
-            f"or its duration period passed",
+            f"You have already did within last {user_challenge.challenge.frequency} days "
+            f"or its duration time passed",
         )
     return redirect("my_challenges")
 

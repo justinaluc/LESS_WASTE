@@ -1,8 +1,6 @@
 import pytest
 from django.urls import reverse
 
-from challenges.models import Category, Challenge
-
 
 def test_view_home(client):
     url = reverse("home")
