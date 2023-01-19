@@ -141,22 +141,32 @@ def event_view_done(request):
         user_id=request.user, challenge_id=challenge_id, is_active=True
     )
     user_challenge.check_if_active()
-    if user_challenge.get_points == points and user_challenge.is_active:
-        new_log = Log.objects.create(user_challenge_id=user_challenge.id, points=points)
-        my_profile = request.user.profile
-        my_profile.points += points
-        my_profile.save()
-        messages.success(
-            request,
-            f"You have just got {points} points for challenge: {user_challenge.challenge}!",
-        )
+    if user_challenge.is_active:
+        new_points = user_challenge.get_points()
+        if new_points == points:
+            Log.objects.create(user_challenge_id=user_challenge.id, points=points)
+            my_profile = request.user.profile
+            my_profile.points += points
+            my_profile.save()
+            messages.success(
+                request,
+                f"You have just got {new_points} points for challenge: {user_challenge.challenge}!",
+            )
+        elif new_points == 0:
+            messages.warning(
+                request,
+                f"You cannot get new points for this challenge yet: {user_challenge.challenge}. "
+                f"You have already done it within last {user_challenge.challenge.frequency} days ",
+            )
+        else:
+            messages.warning(
+                request,
+                f"You cannot, but I do not know why, yet :P",)
     else:
         messages.warning(
-            request,
-            f"You cannot get new points for this challenge yet: {user_challenge.challenge}. "
-            f"You have already did within last {user_challenge.challenge.frequency} days "
-            f"or its duration time passed",
-        )
+                request,
+                f"You cannot get new points for this challenge yet: {user_challenge.challenge}. "
+                f"its duration time passed",)
     return redirect("my_challenges")
 
 

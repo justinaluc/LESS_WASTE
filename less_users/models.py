@@ -59,7 +59,7 @@ class UserChallenge(models.Model):
 
     def days_left(self, todays_date=date.today()) -> int:
         """return the rest of the subtraction of end_date and today;
-        to count end_date, activation date (start_date) and timedelta of challenge duration are summed;
+        to count it, end_date, activation date (start_date) and timedelta of challenge duration are summed;
         ex. activation date: 01.01.2020, duration: 1 month (30 days), today: 28.01.2020.
         (01.01.2020 + timedelta(30)) - 28.01.2020 gives 3 days"""
         end_date = self.start_date.date() + timedelta(
