@@ -122,7 +122,7 @@ def activate_view(request, pk):
     """it checks if there exists active user_challenge for logged-in user and chosen challenge;
     if not- it creates new active user_challenge"""
     user_challenge = UserChallenge.objects.filter(
-        user=request.user, challenge_id=pk, is_active=True
+        user=request.user, challenge_id=pk, is_active=True, is_visible=True
     )
     if user_challenge.exists():
         messages.warning(request, "You still have this challenge active!")
@@ -190,7 +190,9 @@ def event_view_delete(request):
     """delete user challenge from the list of my challenges (hide it with 'is_visible' parameter set into False)"""
     user_challenge_id = int(request.POST.get("delete"))
     user_challenge = UserChallenge.objects.get(id=user_challenge_id)
+    user_challenge.is_active = False
     user_challenge.is_visible = False
+    user_challenge.save()
     messages.warning(
         request, f"You have deleted {user_challenge.challenge} from your challenges."
     )
