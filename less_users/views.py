@@ -13,7 +13,7 @@ from less_users.models import UserChallenge, Profile, Log
 
 
 class HomeView(View):
-    """>>hello page<< for both: logged in users and visitors"""
+    """>>hello page<< for both: logged-in users and visitors"""
 
     def get(self, request):
         return render(request, "less_users/home.html")
@@ -77,28 +77,31 @@ class MyChallengesView(LoginRequiredMixin, ListView):
     ordering = ["-start_date"]
 
     def get_queryset(self):
-        """filters user_challenge queryset to challenges by logged in user"""
+        """filters user_challenge queryset to challenges by logged-in user"""
         my_id = self.request.user
         return UserChallenge.objects.filter(user=my_id)
 
     def get_context_data(self, **kwargs):
-        """adds all challenges by logged in user and active ones to the context"""
+        """adds all challenges by logged-in user and active ones to the context"""
         context = super().get_context_data(**kwargs)
         context["my_all"] = self.get_queryset()
         context["my_active"] = self.get_queryset().filter(is_active=True)
+        context["my_visible"] = self.get_queryset().filter(is_visible=True)
         return context
 
     def get(self, request, **kwargs):
         """adds sorting options (ordering by...) of user_challenge items by: >active< >date< or >alphabetically<"""
         my_all = self.get_queryset()
         my_active = self.get_queryset().filter(is_active=True)
+        my_visible = self.get_queryset().filter(is_visible=True)
+        # check order value set from web page -> has to be fixed !!!!!!!!!!!!
         if request.GET.get("order_value"):
             order_value = request.GET.get("order_value")
             my_all = my_all.order_by(order_value)
         return render(
             request,
             "less_users/my_challenges.html",
-            context={"my_all": my_all, "my_active": my_active},
+            context={"my_all": my_all, "my_active": my_active, "my_visible": my_visible},
         )
 
     def post(self, request, **kwargs):
@@ -116,7 +119,7 @@ class MyChallengeView(LoginRequiredMixin, DetailView):
 
 
 def activate_view(request, pk):
-    """it checks if there exists active user_challenge for logged in user and chosen challenge;
+    """it checks if there exists active user_challenge for logged-in user and chosen challenge;
     if not- it creates new active user_challenge"""
     user_challenge = UserChallenge.objects.filter(
         user=request.user, challenge_id=pk, is_active=True
@@ -125,7 +128,7 @@ def activate_view(request, pk):
         messages.warning(request, "You still have this challenge active!")
         return redirect("my_challenges")
     else:
-        user_new_challenge = UserChallenge.objects.create(
+        UserChallenge.objects.create(
             user=request.user, challenge_id=pk
         )
         messages.success(request, "You activated new challenge!")
@@ -161,7 +164,7 @@ def event_view_done(request):
         else:
             messages.warning(
                 request,
-                f"You cannot, but I do not know why, yet :P",)
+                f"You cannot get points for this challenge, but I do not know why...",)
     else:
         messages.warning(
                 request,
@@ -184,10 +187,10 @@ def event_view_stop(request):
 
 
 def event_view_delete(request):
-    """delete user challenge from the list of my challenges"""
+    """delete user challenge from the list of my challenges (hide it with 'is_visible' parameter set into False)"""
     user_challenge_id = int(request.POST.get("delete"))
     user_challenge = UserChallenge.objects.get(id=user_challenge_id)
-    user_challenge.delete()
+    user_challenge.is_visible = False
     messages.warning(
         request, f"You have deleted {user_challenge.challenge} from your challenges."
     )

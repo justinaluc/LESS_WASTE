@@ -28,7 +28,7 @@ def test_view_my_challenges_unauthorised(client):
     response = client.get(url)
 
     assert response.status_code == 302
-    assert "login/?next=/my_challenges/" in response.url
+    assert "/login/?next=/my_challenges/" == response.url
 
 
 @pytest.mark.django_db
@@ -38,3 +38,5 @@ def test_view_my_challenges_authorised(client, user):
     response = client.get(url)
 
     assert response.status_code == 200
+
+

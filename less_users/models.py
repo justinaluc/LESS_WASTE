@@ -19,6 +19,7 @@ class UserChallenge(models.Model):
     challenge = models.ForeignKey(Challenge, on_delete=models.PROTECT)
     start_date = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
+    is_visible = models.BooleanField(help_text="visible or not in my_challenges list", default=True)
 
     class Meta:
         ordering = ["-is_active"]
@@ -35,7 +36,7 @@ class UserChallenge(models.Model):
                 total += log.points
         return total
 
-    def get_points(self, todays_date=date.today()):
+    def get_points(self, date_today=date.today()):
         """add points to the particular Log (connected with user_challenge)
         if challenge is active and default frequency passed;
         ex. today: 28.01.2020, last_log: 20.01.2020, frequency: 1/week.
@@ -49,7 +50,7 @@ class UserChallenge(models.Model):
         if self.is_active:
             if self.log_set.exists():
                 last_log = self.log_set.last().date
-                if (todays_date - last_log.date()).days >= frequency:
+                if (date_today - last_log.date()).days >= frequency:
                     return points
                 return 0
             else:
@@ -57,7 +58,7 @@ class UserChallenge(models.Model):
         else:
             return 0
 
-    def days_left(self, todays_date=date.today()) -> int:
+    def days_left(self, date_today=None) -> int:
         """return the rest of the subtraction of end_date and today;
         to count it, end_date, activation date (start_date) and timedelta of challenge duration are summed;
         ex. activation date: 01.01.2020, duration: 1 month (30 days), today: 28.01.2020.
@@ -65,7 +66,13 @@ class UserChallenge(models.Model):
         end_date = self.start_date.date() + timedelta(
             days=self.challenge.duration
         )
-        return (end_date - todays_date).days
+        if date_today is None:
+            date_today = date.today()
+        elif isinstance(date_today, date):
+            date_today = date_today
+        else:
+            pass
+        return (end_date - date_today).days
 
     def check_if_active(self):
         """check if challenge is not out-of-date; deactivate user_challenge if days_left is less than 0"""
