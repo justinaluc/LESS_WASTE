@@ -13,6 +13,11 @@ class ExtraUserChallengeContextMixin(ContextMixin):
         if self.request.user.is_anonymous:
             context["my_challenges"] = None
         else:
+            # poszukać wydajniejszej metody z pojedynczym zapytaniem do bazy danych !!!!!!!!!!!!!!!!!
+            # my_active_challenges_ids = UserChallenge.objects.filter(
+            #     user_id=self.request.user,
+            #     is_active=True).with_entities("challenge_id", flat=True)
+            # my_challenges = Challenge.objects.filter(id__in=my_active_challenges_ids)
             my_active = UserChallenge.objects.filter(
                 user=self.request.user, is_active=True
             )

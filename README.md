@@ -1,7 +1,7 @@
 #LESS WASTE - challenges app
 ___
 * app created with Django, postgresQL, Bootstrap
-    
+
 * mastering django within python developer course
 
 * taking challenges to save our planet | step by step
@@ -17,9 +17,9 @@ ___
 
 ###Introduction:
 ___
-This app is filled with ideas for small and big steps 
-one could take in order to live life at the cleaner Earth. 
-One finds here challenges, statistics, tips of improvement 
+This app is filled with ideas for small and big steps
+one could take in order to live life at the cleaner Earth.
+One finds here challenges, statistics, tips of improvement
 towards <b> less waste </b> or even <b> zero waste</b>.
 
 ###Technologies:
@@ -47,23 +47,23 @@ ___
   + templates: home, register, log in, log out, user_challenges (activate, delete)
   + views with logic
   + admin site: Profile (User with points)
-  
+
 + app with challenges:
   + models: Challenge, Category, CategoryChallenge, UserChallenge
   + templates: show categories, show challenges in category, show challenges, show challenge details
   + views: generic
-  + admin site: Challenge, Category, CategoryChallenge 
+  + admin site: Challenge, Category, CategoryChallenge
 
 Later development ideas:
 - statistics
 - add new challenge idea,
-- books to read, 
+- books to read,
 - app: saved costs,
 - app: waste reduced in g/ kg,
 
-  
-    Scope of functionalities 
+
+    Scope of functionalities
     Examples of use
-    Project status 
+    Project status
     Sources
     Other information
