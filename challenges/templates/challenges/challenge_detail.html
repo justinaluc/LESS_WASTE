@@ -22,6 +22,8 @@
               <p>new points <b>everyday</b></p>
               {% elif challenge.frequency == 1 %}
                <p>new points <b>everyday</b> for <b>{{ challenge.duration }} days</b></p>
+              {% elif challenge.frequency == challenge.duration %}
+              <p>new points every <b>{{ challenge.frequency }} days</b></p>
               {% else %}
               <p>new points every <b>{{ challenge.frequency }} days</b> for <b>{{ challenge.duration }} days</b></p>
               {% endif %}

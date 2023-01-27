@@ -13,30 +13,29 @@ class ChallengeAdmin(admin.ModelAdmin):
     inlines = (CategoryChallengeInline,)
 
     # show below data in challenge list
-    list_display = ('name', 'duration', 'frequency', 'points')
+    list_display = ("name", "duration", "frequency", "points")
 
     # add filters for frequency and points
-    list_filter = ('frequency', 'points')
+    list_filter = ("frequency", "points")
 
     # sort list alphabetically by 'name'
-    ordering = ('name',)
+    ordering = ("name",)
 
 
 class CategoryAdmin(admin.ModelAdmin):
     # add many2many relation field into list
     inlines = (CategoryChallengeInline,)
-    ordering = ('name',)
+    ordering = ("name",)
 
 
 class CategoryChallengeAdmin(admin.ModelAdmin):
     # show below data in category challenge list
-    list_display = ('category', 'challenge')
+    list_display = ("category", "challenge")
 
     # add filter for category
-    list_filter = ('category',)
+    list_filter = ("category",)
 
 
 admin.site.register(Challenge, ChallengeAdmin)
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(CategoryChallenge, CategoryChallengeAdmin)
-

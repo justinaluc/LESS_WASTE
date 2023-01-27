@@ -7,18 +7,22 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('challenges', '0001_initial'),
+        ("challenges", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='categorychallenge',
-            name='category',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='challenges.category'),
+            model_name="categorychallenge",
+            name="category",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="challenges.category"
+            ),
         ),
         migrations.AlterField(
-            model_name='categorychallenge',
-            name='challenge',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='challenges.challenge'),
+            model_name="categorychallenge",
+            name="challenge",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="challenges.challenge"
+            ),
         ),
     ]
