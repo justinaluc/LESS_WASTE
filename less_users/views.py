@@ -101,7 +101,11 @@ class MyChallengesView(LoginRequiredMixin, ListView):
         return render(
             request,
             "less_users/my_challenges.html",
-            context={"my_all": my_all, "my_active": my_active, "my_visible": my_visible},
+            context={
+                "my_all": my_all,
+                "my_active": my_active,
+                "my_visible": my_visible,
+            },
         )
 
     def post(self, request, **kwargs):
@@ -128,9 +132,7 @@ def activate_view(request, pk):
         messages.warning(request, "You still have this challenge active!")
         return redirect("my_challenges")
     else:
-        UserChallenge.objects.create(
-            user=request.user, challenge_id=pk
-        )
+        UserChallenge.objects.create(user=request.user, challenge_id=pk)
         messages.success(request, "You activated new challenge!")
         return HttpResponseRedirect(reverse("challenge_detail", args=[str(pk)]))
 
@@ -141,9 +143,7 @@ def event_view_done(request):
     try:
         challenge_id = int(request.POST.get("done"))
     except ValueError:
-        messages.warning(
-            request,
-            f"This challenge does not exist")
+        messages.warning(request, f"This challenge does not exist")
     else:
         if Challenge.objects.filter(id=challenge_id).exists():
             points = Challenge.objects.get(id=challenge_id).points
@@ -155,7 +155,9 @@ def event_view_done(request):
                 """proceed user getting points for user challenge; it is up to date"""
                 new_points = user_challenge.get_points()
                 if new_points == points:
-                    Log.objects.create(user_challenge_id=user_challenge.id, points=points)
+                    Log.objects.create(
+                        user_challenge_id=user_challenge.id, points=points
+                    )
                     my_profile = request.user.profile
                     my_profile.points += points
                     my_profile.save()
@@ -176,11 +178,10 @@ def event_view_done(request):
                 messages.warning(
                     request,
                     f"You cannot get new points for this challenge: {user_challenge.challenge}. "
-                    f"Its duration time passed", )
+                    f"Its duration time passed",
+                )
         else:
-            messages.warning(
-                request,
-                f"This challenge does not exist")
+            messages.warning(request, f"This challenge does not exist")
     return redirect("my_challenges")
 
 

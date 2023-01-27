@@ -13,6 +13,7 @@ py==1.11.0
 pyparsing==3.0.9
 pytest==7.1.2
 pytest-django==4.5.2
+pytest-freezegun==0.4.2
 python-dateutil==2.8.2
 python-decouple==3.6
 six==1.16.0

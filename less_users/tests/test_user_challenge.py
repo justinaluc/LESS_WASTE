@@ -30,46 +30,26 @@ def test_user_challenge_deactivation_when_duration_passed(user, challenge_1_day)
     assert not new_challenge.is_active
 
 
-def test_user_challenge_done(challenge_1_day):
-    pass
+TEST_DIV_DATA = (
+    ("2022-12-01", date(2022, 12, 28), 3),
+    ("2022-12-31", date(2023, 1, 18), 12),
+    ("2023-01-29", date(2023, 3, 1), -1),
+    (date.today().strftime("%Y-%m-%d"), date.today(), 30),
+)
 
 
 @pytest.mark.django_db
-@freeze_time("2022-12-01")
-def test_user_challenge_model_days_left_3(user, challenge_3_month):
+@pytest.mark.parametrize("a, b, expected", TEST_DIV_DATA)
+@pytest.mark.freeze_time
+def test_user_challenge_model_days_left_3(
+    user, challenge_3_month, a, b, expected, freezer
+):
+    freezer.move_to(a)
     new_challenge = UserChallenge(user=user, challenge=challenge_3_month)
     new_challenge.save()
 
-    date_today = date(2022, 12, 28)
-    assert new_challenge.days_left(date_today=date_today) == 3
-
-
-@pytest.mark.django_db
-@freeze_time("2022-12-31")
-def test_user_challenge_model_days_left_12(user, challenge_3_month):
-    new_challenge = UserChallenge(user=user, challenge=challenge_3_month)
-    new_challenge.save()
-
-    date_today = date(2023, 1, 18)
-    assert new_challenge.days_left(date_today=date_today) == 12
-
-
-@pytest.mark.django_db
-@freeze_time("2023-01-29")
-def test_user_challenge_model_days_left_less_than_0(user, challenge_3_month):
-    new_challenge = UserChallenge(user=user, challenge=challenge_3_month)
-    new_challenge.save()
-
-    date_today = date(2023, 3, 1)
-    assert new_challenge.days_left(date_today=date_today) == -1
-
-
-@pytest.mark.django_db
-def test_user_challenge_model_days_left_30(user, challenge_3_month):
-    new_challenge = UserChallenge(user=user, challenge=challenge_3_month)
-    new_challenge.save()
-
-    assert new_challenge.days_left() == 30
+    date_today = b
+    assert new_challenge.days_left(date_today=date_today) == expected
 
 
 @pytest.mark.django_db
@@ -86,7 +66,6 @@ def test_user_challenge_model_days_left_1(user, challenge_1_day):
 def test_user_challenge_get_points_for_new_challenge_day(
     user, create_user_challenge_day
 ):
-
     assert (
         create_user_challenge_day.challenge.points
         == create_user_challenge_day.get_points()

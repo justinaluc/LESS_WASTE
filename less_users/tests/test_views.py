@@ -38,5 +38,3 @@ def test_view_my_challenges_authorised(client, user):
     response = client.get(url)
 
     assert response.status_code == 200
-
-

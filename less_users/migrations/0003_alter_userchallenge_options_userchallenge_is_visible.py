@@ -6,17 +6,19 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('less_users', '0002_userchallenge_log'),
+        ("less_users", "0002_userchallenge_log"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='userchallenge',
-            options={'ordering': ['-is_active']},
+            name="userchallenge",
+            options={"ordering": ["-is_active"]},
         ),
         migrations.AddField(
-            model_name='userchallenge',
-            name='is_visible',
-            field=models.BooleanField(default=True, help_text='visible or not in my_challenges list'),
+            model_name="userchallenge",
+            name="is_visible",
+            field=models.BooleanField(
+                default=True, help_text="visible or not in my_challenges list"
+            ),
         ),
     ]

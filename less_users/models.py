@@ -19,7 +19,9 @@ class UserChallenge(models.Model):
     challenge = models.ForeignKey(Challenge, on_delete=models.PROTECT)
     start_date = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
-    is_visible = models.BooleanField(help_text="visible or not in my_challenges list", default=True)
+    is_visible = models.BooleanField(
+        help_text="visible or not in my_challenges list", default=True
+    )
 
     class Meta:
         ordering = ["-is_active"]
@@ -63,9 +65,7 @@ class UserChallenge(models.Model):
         to count it, end_date, activation date (start_date) and timedelta of challenge duration are summed;
         ex. activation date: 01.01.2020, duration: 1 month (30 days), today: 28.01.2020.
         (01.01.2020 + timedelta(30)) - 28.01.2020 gives 3 days"""
-        end_date = self.start_date.date() + timedelta(
-            days=self.challenge.duration
-        )
+        end_date = self.start_date.date() + timedelta(days=self.challenge.duration)
         if date_today is None:
             date_today = date.today()
         elif isinstance(date_today, date):
