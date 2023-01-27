@@ -4,6 +4,7 @@ from django.views.generic.base import ContextMixin
 from less_users.models import UserChallenge
 from .models import Challenge, Category
 
+
 # mixin with additional, filtered by logged in user, context used in many views:
 
 
@@ -13,17 +14,10 @@ class ExtraUserChallengeContextMixin(ContextMixin):
         if self.request.user.is_anonymous:
             context["my_challenges"] = None
         else:
-            # poszukać wydajniejszej metody z pojedynczym zapytaniem do bazy danych !!!!!!!!!!!!!!!!!
-            # my_active_challenges_ids = UserChallenge.objects.filter(
-            #     user_id=self.request.user,
-            #     is_active=True).with_entities("challenge_id", flat=True)
-            # my_challenges = Challenge.objects.filter(id__in=my_active_challenges_ids)
-            my_active = UserChallenge.objects.filter(
-                user=self.request.user, is_active=True
+            my_active = UserChallenge.objects.select_related("challenge").filter(
+                user=self.request.user, is_active=True, is_visible=True
             )
-            my_challenges = []
-            for each in my_active:
-                my_challenges.append(each.challenge)
+            my_challenges = [each.challenge for each in my_active]
             context["my_challenges"] = my_challenges
         return context
 
