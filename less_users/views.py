@@ -138,38 +138,49 @@ def activate_view(request, pk):
 def event_view_done(request):
     """gain points when user challenge is completed by clicking >done< button;
     should check if points can be added (depending on duration and frequency in model)"""
-    challenge_id = int(request.POST.get("done"))
-    points = Challenge.objects.get(id=challenge_id).points
-    user_challenge = UserChallenge.objects.get(
-        user_id=request.user, challenge_id=challenge_id, is_active=True
-    )
-    user_challenge.check_if_active()
-    if user_challenge.is_active:
-        new_points = user_challenge.get_points()
-        if new_points == points:
-            Log.objects.create(user_challenge_id=user_challenge.id, points=points)
-            my_profile = request.user.profile
-            my_profile.points += points
-            my_profile.save()
-            messages.success(
-                request,
-                f"You have just got {new_points} points for challenge: {user_challenge.challenge}!",
+    try:
+        challenge_id = int(request.POST.get("done"))
+    except ValueError:
+        messages.warning(
+            request,
+            f"This challenge does not exist")
+    else:
+        if Challenge.objects.filter(id=challenge_id).exists():
+            points = Challenge.objects.get(id=challenge_id).points
+            user_challenge = UserChallenge.objects.get(
+                user_id=request.user, challenge_id=challenge_id, is_active=True
             )
-        elif new_points == 0:
-            messages.warning(
-                request,
-                f"You cannot get new points for this challenge yet: {user_challenge.challenge}. "
-                f"You have already done it within last {user_challenge.challenge.frequency} days ",
-            )
+            user_challenge.check_if_active()
+            if user_challenge.is_active:
+                """proceed user getting points for user challenge; it is up to date"""
+                new_points = user_challenge.get_points()
+                if new_points == points:
+                    Log.objects.create(user_challenge_id=user_challenge.id, points=points)
+                    my_profile = request.user.profile
+                    my_profile.points += points
+                    my_profile.save()
+                    messages.success(
+                        request,
+                        f"You have just got {new_points} points for challenge: {user_challenge.challenge}!",
+                    )
+                else:
+                    messages.warning(
+                        request,
+                        f"You cannot get new points for this challenge yet: {user_challenge.challenge}. "
+                        f"You have already done it within last {user_challenge.challenge.frequency} days",
+                    )
+            else:
+                """stop user challenge is out of date"""
+                user_challenge.is_active = False
+                user_challenge.save()
+                messages.warning(
+                    request,
+                    f"You cannot get new points for this challenge: {user_challenge.challenge}. "
+                    f"Its duration time passed", )
         else:
             messages.warning(
                 request,
-                f"You cannot get points for this challenge, but I do not know why...",)
-    else:
-        messages.warning(
-                request,
-                f"You cannot get new points for this challenge yet: {user_challenge.challenge}. "
-                f"its duration time passed",)
+                f"This challenge does not exist")
     return redirect("my_challenges")
 
 
