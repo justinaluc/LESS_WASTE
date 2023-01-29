@@ -19,8 +19,8 @@ class UserChallenge(models.Model):
     challenge = models.ForeignKey(Challenge, on_delete=models.PROTECT)
     start_date = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
-    is_visible = models.BooleanField(
-        help_text="visible or not in my_challenges list", default=True
+    is_deleted = models.BooleanField(
+        help_text="visible or not in my_challenges list", default=False
     )
 
     class Meta:

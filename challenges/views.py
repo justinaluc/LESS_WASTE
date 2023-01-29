@@ -15,7 +15,7 @@ class ExtraUserChallengeContextMixin(ContextMixin):
             context["my_challenges"] = None
         else:
             my_active = UserChallenge.objects.select_related("challenge").filter(
-                user=self.request.user, is_active=True, is_visible=True
+                user=self.request.user, is_active=True, is_deleted=False
             )
             my_challenges = [each.challenge for each in my_active]
             context["my_challenges"] = my_challenges

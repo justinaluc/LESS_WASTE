@@ -6,105 +6,118 @@
 {% endblock title %}
 
 {% block content %}
-    <h1>Hey, {{ user.username }}!</h1>
-    <p>Here you can find your challenges.</p>
+<h1>Hey, {{ user.username }}!</h1>
+<p>Here you can find your challenges.</p>
 
-    {% if my_all.count == 0 %}
-        <div class="card mt-4 mb-2">
-            <p class="mt-3 mx-4">You did not choose any challenge for yourself yet?! Go <a href="{% url 'challenge_list' %}">here</a> to search some.</p>
-        </div>
-    {% elif my_all.count == 1 and my_active == 1 %}
-        <ul class="card mt-4 pb-3">
-            <li class="mt-3">You've just taken up <b>the very first challenge</b>! Great!</li>
-            {% if user.profile.points > 0 %}
-            <li class="mt-3">Thanks to that, there are <b>{{user.profile.points}}</b> points at your account.</li>
-            {% endif %}
-        </ul>
-    {% elif my_all.count == 1 %}
-        <ul class="card mt-4 pb-3">
-            <li class="mt-3">You've already taken up <b>your first challenge</b> and completed it!</li>
-            <li class="mt-3">Thanks to that, there are <b>{{user.profile.points}} points</b> at your account.</li>
-        </ul>
-    {% elif my_all.count > 1 %}
-<!--list of all user's challenges with total score-->
-        <ul class="card mt-4 pb-3">
-            <li class="mt-3">You've already taken up <b>{{my_all.count}} challenges</b>,
-                and <b>{{my_active.count}}</b> are the ones that are worth working on! </li>
-            <li class="mt-3">Thanks to that, there are <b>{{user.profile.points}} points</b> at your account.</li>
-            {% if user.profile.points <= 100 %}
-                <li class="mt-3 text-success"><strong>The first steps are the hardest. Good job!</strong></li>
-            {% elif user.profile.points > 100 and user.profile.points <= 500 %}
-                <li class="mt-3 text-success"><strong>You're getting better and better. Excellent work!</strong></li>
-            {% else %}
-                <li class="mt-3 text-success"><strong>Brilliant! The Earth is grateful for your efforts!</strong></li>
-            {% endif %}
-        </ul>
+{% if my_all.count == 0 %}
+<div class="card mt-4 mb-2">
+    <p class="mt-3 mx-4">You did not choose any challenge for yourself yet?! Go <a href="{% url 'challenge_list' %}">here</a>
+        to search some.</p>
+</div>
+{% elif my_all.count == 1 and my_active == 1 %}
+<ul class="card mt-4 pb-3">
+    <li class="mt-3">You've just taken up <b>the very first challenge</b>! Great!</li>
+    {% if user.profile.points > 0 %}
+    <li class="mt-3">Thanks to that, there are <b>{{user.profile.points}}</b> points at your account.</li>
     {% endif %}
-    <div class="row align-items-end">
-        <div class="container-fluid">
-             <div class="card text h4 float-end">
-<!--buttons for sorting user's challenges-->
-                <form action="" method="GET">
-                    <button class="btn btn-outline-secondary" type="submit" name="order_value" value="-is_active">active</button>
-                    <button class="btn btn-outline-secondary" type="submit" name="order_value" value="-start_date">the newest</button>
-                    <button class="btn btn-outline-secondary" type="submit" name="order_value" value="challenge__name">challenge name</button>
+</ul>
+{% elif my_all.count == 1 %}
+<ul class="card mt-4 pb-3">
+    <li class="mt-3">You've already taken up <b>your first challenge</b> and completed it!</li>
+    <li class="mt-3">Thanks to that, there are <b>{{user.profile.points}} points</b> at your account.</li>
+</ul>
+{% elif my_all.count > 1 %}
+<!--list of all user's challenges with total score-->
+<ul class="card mt-4 pb-3">
+    <li class="mt-3">You've already taken up <b>{{my_all.count}} challenges</b>,
+        and <b>{{my_active.count}}</b> are the ones that are worth working on!
+    </li>
+    <li class="mt-3">Thanks to that, there are <b>{{user.profile.points}} points</b> at your account.</li>
+    {% if user.profile.points <= 100 %}
+    <li class="mt-3 text-success"><strong>The first steps are the hardest. Good job!</strong></li>
+    {% elif user.profile.points > 100 and user.profile.points <= 500 %}
+    <li class="mt-3 text-success"><strong>You're getting better and better. Excellent work!</strong></li>
+    {% else %}
+    <li class="mt-3 text-success"><strong>Brilliant! The Earth is grateful for your efforts!</strong></li>
+    {% endif %}
+</ul>
+{% endif %}
+<div class="row align-items-end">
+    <div class="container-fluid">
+        <div class="card text h4 float-end">
+            <!--buttons for sorting user's challenges-->
+            <form action="" method="GET">
+                <button class="btn btn-outline-secondary" type="submit" name="order_value" value="-is_active">active
+                </button>
+                <button class="btn btn-outline-secondary" type="submit" name="order_value" value="-start_date">the
+                    newest
+                </button>
+                <button class="btn btn-outline-secondary" type="submit" name="order_value" value="challenge__name">
+                    challenge name
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="row align-items-end">
+    {% for my_challenge in my_all %}
+    {% if my_challenge.is_active %}
+    <div class="container-fluid mt-2">
+        <div class="card">
+            <div class="card-header">
+                <a class="text h4 text-decoration-none text-dark flexbox"
+                   href="{% url 'my_challenge' my_challenge.id %}">{{ my_challenge.challenge }}</a>
+                <form action="{% url 'event'%}" method="POST" class="d-inline-block float-md-end">
+                    {% csrf_token %}
+                    <button class="btn btn-outline-dark disabled">{{ my_challenge.challenge.points }}</button>
+                    <button class="btn btn-success" type="submit" name="done" value="{{my_challenge.challenge.id}}">
+                        Done!
+                    </button>
+                    <button class="btn btn-secondary" type="submit" name="stop" value="{{my_challenge.id}}">Stop
+                    </button>
+                    <button class="btn btn-warning" type="submit" name="delete" value="{{my_challenge.id}}">Delete
+                    </button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+    {% elif not my_challenge.is_deleted %}
+    <div class="container-fluid mt-2">
+        <div class="card">
+            <div class="card-header text-secondary h4">
+                {{ my_challenge.challenge }}
+                <form action="{% url 'event'%}" method="POST" class="d-inline-block float-md-end">
+                    {% csrf_token %}
+                    <button class="btn btn-outline-dark disabled">{{ my_challenge.challenge.points }}</button>
+                    <button class="btn btn-warning" type="submit" name="delete" value="{{my_challenge.id}}">Delete
+                    </button>
                 </form>
             </div>
         </div>
     </div>
-    <div class="row align-items-end">
-        {% for my_challenge in my_all %}
-            {% if my_challenge.is_active %}
-                <div class="container-fluid mt-2">
-                    <div class="card">
-                        <div class="card-header">
-                            <a class="text h4 text-decoration-none text-dark flexbox" href="{% url 'my_challenge' my_challenge.id %}">{{ my_challenge.challenge }}</a>
-                            <form action="{% url 'event'%}" method="POST" class="d-inline-block float-md-end">
-                                {% csrf_token %}
-                                <button class="btn btn-outline-dark disabled">{{ my_challenge.challenge.points }}</button>
-                                <button class="btn btn-success" type="submit" name="done" value="{{my_challenge.challenge.id}}">Done!</button>
-                                <button class="btn btn-secondary" type="submit" name="stop" value="{{my_challenge.id}}">Stop</button>
-                                <button class="btn btn-warning" type="submit" name="delete" value="{{my_challenge.id}}">Delete</button>
-                            </form>
-
-                        </div>
-                    </div>
-                </div>
-            {% elif my_challenge.is_visible %}
-                <div class="container-fluid mt-2">
-                    <div class="card">
-                        <div class="card-header text-secondary h4">
-                            {{ my_challenge.challenge }}
-                            <form action="{% url 'event'%}" method="POST" class="d-inline-block float-md-end">
-                                {% csrf_token %}
-                                <button class="btn btn-outline-dark disabled">{{ my_challenge.challenge.points }}</button>
-                                <button class="btn btn-warning" type="submit" name="delete" value="{{my_challenge.id}}">Delete</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            {% endif %}
-        {% endfor %}
-    </div>
+    {% endif %}
+    {% endfor %}
+</div>
 <!--pagination-->
-    <div class="col mt-4">
-        {% if page_obj.has_previous %}
-            <a class="btn btn-outline-secondary mb-4" href="?page=1">First</a>
-            <a class="btn btn-outline-secondary mb-4" href="?page={{ page_obj.previous_page_number }}">&laquo;</a>
-        {% endif %}
+<div class="col mt-4">
+    {% if page_obj.has_previous %}
+    <a class="btn btn-outline-secondary mb-4" href="?page=1">First</a>
+    <a class="btn btn-outline-secondary mb-4" href="?page={{ page_obj.previous_page_number }}">&laquo;</a>
+    {% endif %}
 
-        {% for num in page_obj.paginator.page_range %}
-            {% if page_obj.number == num %}
-                <a class="btn btn-secondary mb-4" href="?page={{ num }}">{{ num }}</a>
-            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                <a class="btn btn-outline-secondary mb-4" href="?page={{ num }}">{{ num }}</a>
-            {% endif %}
-        {% endfor %}
+    {% for num in page_obj.paginator.page_range %}
+    {% if page_obj.number == num %}
+    <a class="btn btn-secondary mb-4" href="?page={{ num }}">{{ num }}</a>
+    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+    <a class="btn btn-outline-secondary mb-4" href="?page={{ num }}">{{ num }}</a>
+    {% endif %}
+    {% endfor %}
 
-        {% if page_obj.has_next %}
-            <a class="btn btn-outline-secondary mb-4" href="?page={{ page_obj.next_page_number }}">&raquo;</a>
-            <a class="btn btn-outline-secondary mb-4" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
-        {% endif %}
-    </div>
+    {% if page_obj.has_next %}
+    <a class="btn btn-outline-secondary mb-4" href="?page={{ page_obj.next_page_number }}">&raquo;</a>
+    <a class="btn btn-outline-secondary mb-4" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+    {% endif %}
+</div>
 
 {% endblock content %}

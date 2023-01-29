@@ -77,23 +77,22 @@ class MyChallengesView(LoginRequiredMixin, ListView):
     ordering = ["-start_date"]
 
     def get_queryset(self):
-        """filters user_challenge queryset to challenges by logged-in user"""
-        my_id = self.request.user
-        return UserChallenge.objects.filter(user=my_id)
+        """filters user_challenge queryset to only logged-in user challenges"""
+        return UserChallenge.objects.filter(user=self.request.user)
 
     def get_context_data(self, **kwargs):
-        """adds all challenges by logged-in user and active ones to the context"""
+        """adds all, active ones and not deleted challenges of logged-in user to the context"""
         context = super().get_context_data(**kwargs)
         context["my_all"] = self.get_queryset()
         context["my_active"] = self.get_queryset().filter(is_active=True)
-        context["my_visible"] = self.get_queryset().filter(is_visible=True)
+        context["my_visible"] = self.get_queryset().filter(is_deleted=False)
         return context
 
     def get(self, request, **kwargs):
         """adds sorting options (ordering by...) of user_challenge items by: >active< >date< or >alphabetically<"""
         my_all = self.get_queryset()
-        my_active = self.get_queryset().filter(is_active=True)
-        my_visible = self.get_queryset().filter(is_visible=True)
+        my_active = my_all.filter(is_active=True)
+        my_visible = my_all.filter(is_deleted=False)
         # check order value set from web page -> has to be fixed !!!!!!!!!!!!
         if request.GET.get("order_value"):
             order_value = request.GET.get("order_value")
@@ -126,7 +125,7 @@ def activate_view(request, pk):
     """it checks if there exists active user_challenge for logged-in user and chosen challenge;
     if not- it creates new active user_challenge"""
     user_challenge = UserChallenge.objects.filter(
-        user=request.user, challenge_id=pk, is_active=True, is_visible=True
+        user=request.user, challenge_id=pk, is_active=True, is_deleted=False
     )
     if user_challenge.exists():
         messages.warning(request, "You still have this challenge active!")
@@ -199,11 +198,11 @@ def event_view_stop(request):
 
 
 def event_view_delete(request):
-    """delete user challenge from the list of my challenges (hide it with 'is_visible' parameter set into False)"""
+    """delete user challenge from the list of my challenges (hide it with 'is_deleted' parameter set into True)"""
     user_challenge_id = int(request.POST.get("delete"))
     user_challenge = UserChallenge.objects.get(id=user_challenge_id)
     user_challenge.is_active = False
-    user_challenge.is_visible = False
+    user_challenge.is_deleted = True
     user_challenge.save()
     messages.warning(
         request, f"You have deleted {user_challenge.challenge} from your challenges."
