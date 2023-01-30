@@ -66,17 +66,15 @@ class UserChallenge(models.Model):
         ex. activation date: 01.01.2020, duration: 1 month (30 days), today: 28.01.2020.
         (01.01.2020 + timedelta(30)) - 28.01.2020 gives 3 days"""
         end_date = self.start_date.date() + timedelta(days=self.challenge.duration)
-        if date_today is None:
-            date_today = date.today()
-        elif isinstance(date_today, date):
+        if isinstance(date_today, date):
             date_today = date_today
         else:
-            pass
+            date_today = date.today()
         return (end_date - date_today).days
 
-    def check_if_active(self):
+    def check_if_active(self, date_today=None):
         """check if challenge is not out-of-date; deactivate user_challenge if days_left is less than 0"""
-        if self.days_left() < 0:
+        if self.days_left(date_today) < 0:
             self.is_active = False
         return self.is_active
 

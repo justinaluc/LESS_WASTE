@@ -24,8 +24,7 @@ def test_user_challenge_deactivation_when_duration_passed(user, challenge_1_day)
         challenge=challenge_1_day,
     )
     new_challenge.save()
-    new_challenge.days_left(date_today=date(2023, 1, 5))
-    new_challenge.check_if_active()
+    new_challenge.check_if_active(date_today=date(2023, 1, 3))
 
     assert not new_challenge.is_active
 
