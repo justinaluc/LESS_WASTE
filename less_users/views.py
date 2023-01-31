@@ -29,13 +29,13 @@ class RegisterView(View):
     def post(self, request):
         form = UserRegisterForm(request.POST)
         if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get("username")
+            user = form.save()
             messages.success(
                 request,
-                f"Your account >>{username}<< has been created! You can log in now.",
+                f"Your account >>{user}<< has been created! You can log in now.",
             )
-        return redirect("home")
+            return redirect("home")
+        return render(request, "less_users/register.html", {"form": form})
 
 
 class ProfileView(LoginRequiredMixin, View):

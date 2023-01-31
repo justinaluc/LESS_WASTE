@@ -50,6 +50,7 @@ def test_do_not_update_user_profile_invalid_email_in_update_form(user):
         },
     )
 
+    assert not form.is_valid()
     assert "Enter a valid email address." in form.errors["email"]
 
 
@@ -61,6 +62,7 @@ def test_do_not_update_user_profile_invalid_username_in_update_form(user):
         },
     )
 
+    assert not form.is_valid()
     assert "Enter a valid username" in form.errors["username"][0]
 
 

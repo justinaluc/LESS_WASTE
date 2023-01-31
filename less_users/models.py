@@ -19,9 +19,7 @@ class UserChallenge(models.Model):
     challenge = models.ForeignKey(Challenge, on_delete=models.PROTECT)
     start_date = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
-    is_deleted = models.BooleanField(
-        help_text="visible or not in my_challenges list", default=False
-    )
+    is_deleted = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["-is_active"]
@@ -48,19 +46,15 @@ class UserChallenge(models.Model):
         for 1/day challenge points can be gained each day"""
         points = self.challenge.points
         frequency = self.challenge.frequency
-        self.check_if_active()
-        if self.is_active:
-            if self.log_set.exists():
-                last_log = self.log_set.last().date
-                if (date_today - last_log.date()).days >= frequency:
-                    return points
-                return 0
-            else:
-                return points
-        else:
+        self.check_if_active(date_today)
+        if not self.is_active:
             return 0
+        if not self.log_set.exists():
+            return 0
+        last_log = self.log_set.last().date
+        return points if (date_today - last_log.date()).days >= frequency else 0
 
-    def days_left(self, date_today=None) -> int:
+    def days_left(self, date_today: date) -> int:
         """return the rest of the subtraction of end_date and today;
         to count it, end_date, activation date (start_date) and timedelta of challenge duration are summed;
         ex. activation date: 01.01.2020, duration: 1 month (30 days), today: 28.01.2020.

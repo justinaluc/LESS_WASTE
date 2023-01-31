@@ -106,7 +106,4 @@ images/
 ### import data ###
 *.csv
 
-### pre commit ###
-*.yml
-
     © 2022 GitHub, Inc.
