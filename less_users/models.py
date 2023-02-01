@@ -36,7 +36,8 @@ class UserChallenge(models.Model):
                 total += log.points
         return total
 
-    def get_points(self, date_today=date.today()):
+    @property
+    def get_points(self) -> int:
         """add points to the particular Log (connected with user_challenge)
         if challenge is active and default frequency passed;
         ex. today: 28.01.2020, last_log: 20.01.2020, frequency: 1/week.
@@ -46,29 +47,29 @@ class UserChallenge(models.Model):
         for 1/day challenge points can be gained each day"""
         points = self.challenge.points
         frequency = self.challenge.frequency
-        self.check_if_active(date_today)
+        self.check_if_active
         if not self.is_active:
             return 0
         if not self.log_set.exists():
             return 0
+        date_today = date.today()
         last_log = self.log_set.last().date
         return points if (date_today - last_log.date()).days >= frequency else 0
 
-    def days_left(self, date_today: date) -> int:
+    @property
+    def days_left(self) -> int:
         """return the rest of the subtraction of end_date and today;
         to count it, end_date, activation date (start_date) and timedelta of challenge duration are summed;
         ex. activation date: 01.01.2020, duration: 1 month (30 days), today: 28.01.2020.
         (01.01.2020 + timedelta(30)) - 28.01.2020 gives 3 days"""
         end_date = self.start_date.date() + timedelta(days=self.challenge.duration)
-        if isinstance(date_today, date):
-            date_today = date_today
-        else:
-            date_today = date.today()
+        date_today = date.today()
         return (end_date - date_today).days
 
-    def check_if_active(self, date_today=None):
+    @property
+    def check_if_active(self) -> bool:
         """check if challenge is not out-of-date; deactivate user_challenge if days_left is less than 0"""
-        if self.days_left(date_today) < 0:
+        if self.days_left < 0:
             self.is_active = False
         return self.is_active
 

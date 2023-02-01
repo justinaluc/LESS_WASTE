@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -144,12 +146,15 @@ def event_view_done(request):
     except ValueError:
         messages.warning(request, f"This challenge does not exist")
     else:
-        if Challenge.objects.filter(id=challenge_id).exists():
-            points = Challenge.objects.get(id=challenge_id).points
+        if Challenge.objects.filter(pk=challenge_id).exists():
+            points = Challenge.objects.get(pk=challenge_id).points
             user_challenge = UserChallenge.objects.get(
-                user_id=request.user, challenge_id=challenge_id, is_active=True
+                user_id=request.user,
+                challenge_id=challenge_id,
+                is_active=True,
+                is_deleted=False,
             )
-            user_challenge.check_if_active()
+            # user_challenge.check_if_active(date_today=date.today())
             if user_challenge.is_active:
                 """proceed user getting points for user challenge; it is up to date"""
                 new_points = user_challenge.get_points()

@@ -68,8 +68,8 @@ def test_do_not_update_user_profile_invalid_username_in_update_form(user):
 
 def test_change_user_profile_points_by_clicking_done(user, challenge_2_week):
     user_challenge = UserChallenge.objects.create(user=user, challenge=challenge_2_week)
-    user_challenge.check_if_active()
-    user_challenge.get_points()
+    user_challenge.check_if_active
+    user_challenge.get_points
 
     points = challenge_2_week.points
     Log.objects.create(user_challenge_id=user_challenge.id, points=points)
