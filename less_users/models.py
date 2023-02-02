@@ -47,14 +47,16 @@ class UserChallenge(models.Model):
         for 1/day challenge points can be gained each day"""
         points = self.challenge.points
         frequency = self.challenge.frequency
+        date_today = date.today()
         self.check_if_active
         if not self.is_active:
             return 0
-        if not self.log_set.exists():
-            return 0
-        date_today = date.today()
-        last_log = self.log_set.last().date
-        return points if (date_today - last_log.date()).days >= frequency else 0
+        if self.log_set.exists():
+            last_log = self.log_set.last().date
+            return points if (date_today - last_log.date()).days >= frequency else 0
+        # additional 'elif' contition: user / userchallenge connected with this challenge not active / last log
+        else:
+            return points
 
     @property
     def days_left(self) -> int:

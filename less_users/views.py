@@ -157,7 +157,7 @@ def event_view_done(request):
             # user_challenge.check_if_active(date_today=date.today())
             if user_challenge.is_active:
                 """proceed user getting points for user challenge; it is up to date"""
-                new_points = user_challenge.get_points()
+                new_points = user_challenge.get_points
                 if new_points == points:
                     Log.objects.create(
                         user_challenge_id=user_challenge.id, points=points
