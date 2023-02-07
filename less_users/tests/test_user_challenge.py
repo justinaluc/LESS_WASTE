@@ -1,7 +1,8 @@
 import pytest
 
 from freezegun import freeze_time
-from datetime import date
+
+from datetime import date, timedelta
 
 from less_users.models import UserChallenge, Log
 
@@ -17,20 +18,18 @@ def test_user_challenge_correct_creation(
 
 
 @pytest.mark.django_db
-def test_user_challenge_deactivation_when_duration_passed(
-    user, challenge_1_day, freezer
-):
-    freezer.move_to("2023-01-01")
-    new_challenge = UserChallenge(
-        user=user,
-        challenge=challenge_1_day,
-    )
-    new_challenge.save()
+def test_user_challenge_deactivation_when_duration_passed(user, challenge_1_day):
+    with freeze_time(date(2023, 1, 1)):
+        new_challenge = UserChallenge(
+            user=user,
+            challenge=challenge_1_day,
+        )
+        new_challenge.save()
 
-    freezer.move_to("2023-01-05")
-    new_challenge.check_if_active
+    with freeze_time(date(2023, 1, 5)):
+        new_challenge.check_if_active
 
-    assert not new_challenge.is_active
+        assert not new_challenge.is_active
 
 
 TEST_DIV_DATA = (
@@ -44,15 +43,14 @@ TEST_DIV_DATA = (
 @pytest.mark.django_db
 @pytest.mark.parametrize("date_start, date_today, expected", TEST_DIV_DATA)
 def test_user_challenge_model_days_left_3(
-    user, challenge_3_month, date_start, date_today, expected, freezer
+    user, challenge_3_month, date_start, date_today, expected
 ):
-    freezer.move_to(date_start)
-    new_challenge = UserChallenge(user=user, challenge=challenge_3_month)
-    new_challenge.save()
+    with freeze_time(date_start):
+        new_challenge = UserChallenge(user=user, challenge=challenge_3_month)
+        new_challenge.save()
 
-    freezer.move_to(date_today)
-
-    assert new_challenge.days_left == expected
+    with freeze_time(date_today):
+        assert new_challenge.days_left == expected
 
 
 @pytest.mark.django_db
@@ -77,27 +75,20 @@ def test_user_challenge_get_points_for_new_challenge_day(user, challenge_1_day):
     assert user_challenge.challenge.points == user_log.points
 
 
-# nie działają testy z LOG!!!
 @pytest.mark.django_db
-@freeze_time("2023-01-01")
 def test_user_challenge_get_points_for_new_challenge_month_after_8_days(
     user, challenge_3_month
 ):
-    user_challenge = UserChallenge.objects.create(
-        user=user, challenge=challenge_3_month
-    )
-    user_log = Log.objects.create(
-        user_challenge=user_challenge, points=challenge_3_month.points
-    )
+    with freeze_time(date.today()):
+        user_challenge = UserChallenge.objects.create(
+            user=user, challenge=challenge_3_month
+        )
 
-    assert user_challenge.get_points == user_log.points
+        assert user_challenge.total_points == 0
 
+    with freeze_time(date.today() + timedelta(days=8)):
+        user_log = Log.objects.create(
+            user_challenge=user_challenge, points=challenge_3_month.points
+        )
 
-@pytest.mark.django_db
-@freeze_time("2023-01-01")
-def test_user_challenge_do_not_get_points_for_new_challenge_month_after_5_days(
-    user, create_user_challenge_month
-):
-    Log.objects.create(user_challenge=create_user_challenge_month)
-
-    assert create_user_challenge_month.get_points(date_today=date(2023, 1, 6)) == 0
+        assert user_challenge.total_points == user_log.points

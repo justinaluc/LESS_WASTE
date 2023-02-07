@@ -80,19 +80,14 @@ class MyChallengesView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         """filters user_challenge queryset to only logged-in user challenges"""
-        return UserChallenge.objects.filter(user=self.request.user)
-
-    def get_context_data(self, **kwargs):
-        """adds all, active ones and not deleted challenges of logged-in user to the context"""
-        context = super().get_context_data(**kwargs)
-        context["my_all"] = self.get_queryset()
-        context["my_active"] = self.get_queryset().filter(is_active=True)
-        context["my_visible"] = self.get_queryset().filter(is_deleted=False)
-        return context
+        return UserChallenge.objects.select_related("challenge").filter(
+            user=self.request.user
+        )
 
     def get(self, request, **kwargs):
         """adds sorting options (ordering by...) of user_challenge items by: >active< >date< or >alphabetically<"""
         my_all = self.get_queryset()
+        my_all_count = my_all.count()
         my_active = my_all.filter(is_active=True)
         my_visible = my_all.filter(is_deleted=False)
         # check order value set from web page -> has to be fixed !!!!!!!!!!!!
@@ -106,11 +101,15 @@ class MyChallengesView(LoginRequiredMixin, ListView):
                 "my_all": my_all,
                 "my_active": my_active,
                 "my_visible": my_visible,
+                "my_all_count": my_all_count,
             },
         )
 
     def post(self, request, **kwargs):
         return redirect("my_challenges")
+
+
+# return HttpResponseRedirect(reverse("my_challenges"), request.path_info)
 
 
 class MyChallengeView(LoginRequiredMixin, DetailView):
@@ -144,48 +143,63 @@ def event_view_done(request):
     try:
         challenge_id = int(request.POST.get("done"))
     except ValueError:
-        messages.warning(request, f"This challenge does not exist")
+        messages.warning(request, "This challenge does not exist")
     else:
         if Challenge.objects.filter(pk=challenge_id).exists():
             points = Challenge.objects.get(pk=challenge_id).points
-            user_challenge = UserChallenge.objects.get(
-                user_id=request.user,
-                challenge_id=challenge_id,
-                is_active=True,
-                is_deleted=False,
-            )
-            # user_challenge.check_if_active(date_today=date.today())
-            if user_challenge.is_active:
-                """proceed user getting points for user challenge; it is up to date"""
-                new_points = user_challenge.get_points
-                if new_points == points:
-                    Log.objects.create(
-                        user_challenge_id=user_challenge.id, points=points
-                    )
-                    my_profile = request.user.profile
-                    my_profile.points += points
-                    my_profile.save()
-                    messages.success(
-                        request,
-                        f"You have just got {new_points} points for challenge: {user_challenge.challenge}!",
-                    )
+            # check also not active user_challenges and their logs for frequency sake!
+            if UserChallenge.objects.filter(
+                user_id=request.user, challenge_id=challenge_id
+            ).exists():
+                user_challenge = UserChallenge.objects.get(
+                    user_id=request.user,
+                    challenge_id=challenge_id,
+                    is_active=True,
+                    is_deleted=False,
+                )
+                if user_challenge:
+                    user_challenge.check_if_active
+                    if user_challenge.is_active:
+                        """proceed user getting points for user challenge; it is up to date"""
+                        new_points = user_challenge.get_points
+                        if new_points == points:
+                            Log.objects.create(
+                                user_challenge_id=user_challenge.id, points=points
+                            )
+                            my_profile = request.user.profile
+                            my_profile.points += points
+                            my_profile.save()
+                            messages.success(
+                                request,
+                                f"You have just got {new_points} points for challenge: {user_challenge.challenge}!",
+                            )
+                        else:
+                            messages.warning(
+                                request,
+                                f"You cannot get new points for this challenge yet: {user_challenge.challenge}. "
+                                f"You have already done it within last {user_challenge.challenge.frequency} days",
+                            )
+                    else:
+                        prev_logs = Log.objects.filter(
+                            user_challenge__challenge_id=challenge_id
+                        )
+                        if prev_logs:
+                            print(20 * "*")
+                            print(prev_logs)
                 else:
+                    """stop user challenge, it is out of date"""
+                    user_challenge.is_active = False
+                    user_challenge.is_deleted = True
+                    user_challenge.save()
                     messages.warning(
                         request,
-                        f"You cannot get new points for this challenge yet: {user_challenge.challenge}. "
-                        f"You have already done it within last {user_challenge.challenge.frequency} days",
+                        f"You cannot get new points for this challenge: {user_challenge.challenge}. "
+                        f"Its duration time passed or you already deleted it",
                     )
             else:
-                """stop user challenge is out of date"""
-                user_challenge.is_active = False
-                user_challenge.save()
-                messages.warning(
-                    request,
-                    f"You cannot get new points for this challenge: {user_challenge.challenge}. "
-                    f"Its duration time passed",
-                )
+                messages.warning(request, "You did not activate this challenge yet")
         else:
-            messages.warning(request, f"This challenge does not exist")
+            messages.warning(request, "This challenge does not exist")
     return redirect("my_challenges")
 
 
@@ -216,10 +230,13 @@ def event_view_delete(request):
 
 
 def view_events(request):
+    print("1")
     if "done" in request.POST:
+        print("2")
         event_view_done(request)
     if "stop" in request.POST:
         event_view_stop(request)
     if "delete" in request.POST:
         event_view_delete(request)
+    print("3")
     return redirect("my_challenges")

@@ -5,7 +5,8 @@ from less_users.models import UserChallenge
 from .models import Challenge, Category
 
 
-# mixin with additional, filtered by logged in user, context used in many views:
+# mixin with additional,
+# filtered by logged in user, context used in many views:
 
 
 class ExtraUserChallengeContextMixin(ContextMixin):

@@ -6,10 +6,10 @@ class Challenge(models.Model):
     description = models.TextField()
     duration = models.IntegerField(help_text="how long it takes to complete challenge")
     frequency = models.IntegerField(
-        help_text="how often challenge is activated: 1/day, 1/week, 1/month, 1/year"
+        help_text="how often challenge is activated: " "1/day, 1/week, 1/month, 1/year"
     )
     points = models.IntegerField(
-        help_text="how many points are gained each time challenge is completed"
+        help_text="how many points are gained " "each time challenge is completed"
     )
 
     def __str__(self):

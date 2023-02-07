@@ -31,7 +31,7 @@ class UserChallenge(models.Model):
     def total_points(self):
         """calculate total points for particular user_challenge if any logs were registered"""
         total = 0
-        if len(self.log_set.all()) >= 1:
+        if self.log_set.exists():
             for log in self.log_set.all():
                 total += log.points
         return total
@@ -50,19 +50,26 @@ class UserChallenge(models.Model):
         date_today = date.today()
         self.check_if_active
         if not self.is_active:
+            print("_________________runs automaticly if NOT active")  # noqa
             return 0
         if self.log_set.exists():
+            print("_________________runs automaticly if active with prev logs")  # noqa
             last_log = self.log_set.last().date
             return points if (date_today - last_log.date()).days >= frequency else 0
-        # additional 'elif' contition: user / userchallenge connected with this challenge not active / last log
+        # additional 'elif' condition: user / userchallenge connected with this challenge not active / last log
         else:
+            print(
+                "_________________runs automatically if active with NO prev logs"
+            )  # noqa
             return points
 
     @property
     def days_left(self) -> int:
         """return the rest of the subtraction of end_date and today;
-        to count it, end_date, activation date (start_date) and timedelta of challenge duration are summed;
-        ex. activation date: 01.01.2020, duration: 1 month (30 days), today: 28.01.2020.
+        to count it, end_date, activation date (start_date)
+        and timedelta of challenge duration are summed;
+        ex. activation date: 01.01.2020, duration:
+        1 month (30 days), today: 28.01.2020.
         (01.01.2020 + timedelta(30)) - 28.01.2020 gives 3 days"""
         end_date = self.start_date.date() + timedelta(days=self.challenge.duration)
         date_today = date.today()
@@ -70,7 +77,8 @@ class UserChallenge(models.Model):
 
     @property
     def check_if_active(self) -> bool:
-        """check if challenge is not out-of-date; deactivate user_challenge if days_left is less than 0"""
+        """check if challenge is not out-of-date;
+        deactivate user_challenge if days_left is less than 0"""
         if self.days_left < 0:
             self.is_active = False
         return self.is_active
