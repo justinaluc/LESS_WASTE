@@ -18,14 +18,12 @@ def test_view_events_unauthorised_follow(client):
 
 
 @pytest.mark.django_db
-# @pytest.mark.skip
 def test_view_events_unauthorised(client):
     url = reverse("event")
     response = client.post(url)
 
     assert response.status_code == 302
-    assert response.url == "/my_challenges/"
-    # przy korzystaniu z view events użytkownik musi być zalogowany
+    assert response.url == "/login/"
 
 
 @pytest.mark.django_db
@@ -56,14 +54,13 @@ def test_view_events_done_challenge_pk_does_not_exist(client, user):
 
 
 @pytest.mark.django_db
-# @pytest.mark.skip
 def test_view_events_done_userchallenge_pk_does_not_exist(
     client, user, challenge_1_day
 ):
     url = reverse("event")
     client.force_login(user)
 
-    response = client.post(url, data={"done": 1}, follow=True)
+    response = client.post(url, data={"done": challenge_1_day.id}, follow=True)
     messages = list(response.context["messages"])
 
     assert response.status_code == 200
@@ -83,14 +80,10 @@ def test_view_events_done_add_points_if_first_log(client, user, challenge_3_mont
     assert not Log.objects.filter(user_challenge=user_challenge).exists()
 
     response = client.post(url, data={"done": challenge_3_month.pk}, follow=True)
+    last_log = Log.objects.filter(user_challenge=user_challenge).latest("date")
 
-    assert (
-        Log.objects.filter(user_challenge=user_challenge).latest("date").points
-        == challenge_3_month.points
-    )
-    assert Log.objects.filter(user_challenge=user_challenge).latest(
-        "date"
-    ).date.date() == date(2023, 1, 1)
+    assert last_log.points == challenge_3_month.points
+    assert last_log.date.date() == date(2023, 1, 1)
 
 
 @pytest.mark.django_db
@@ -112,14 +105,10 @@ def test_view_events_done_add_points_if_frequency_period_passed(
 
     with freeze_time(date(2023, 1, 1) + timedelta(days=7)):
         response = client.post(url, data={"done": challenge_3_month.pk}, follow=True)
+        last_log = Log.objects.filter(user_challenge=user_challenge).latest("date")
 
-        assert (
-            Log.objects.filter(user_challenge=user_challenge).latest("date").points
-            == challenge_3_month.points
-        )
-        assert Log.objects.filter(user_challenge=user_challenge).latest(
-            "date"
-        ).date.date() == date(2023, 1, 8)
+        assert last_log.points == challenge_3_month.points
+        assert last_log.date.date() == date(2023, 1, 8)
 
 
 @pytest.mark.django_db

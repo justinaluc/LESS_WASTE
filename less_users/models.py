@@ -28,7 +28,7 @@ class UserChallenge(models.Model):
         return f"{self.user}: {self.challenge}"
 
     @property
-    def total_points(self):
+    def total_points(self) -> int:
         """calculate total points for particular user_challenge if any logs were registered"""
         total = 0
         if self.log_set.exists():
@@ -50,17 +50,11 @@ class UserChallenge(models.Model):
         date_today = date.today()
         self.check_if_active
         if not self.is_active:
-            print("_________________runs automaticly if NOT active")  # noqa
             return 0
         if self.log_set.exists():
-            print("_________________runs automaticly if active with prev logs")  # noqa
             last_log = self.log_set.last().date
             return points if (date_today - last_log.date()).days >= frequency else 0
-        # additional 'elif' condition: user / userchallenge connected with this challenge not active / last log
         else:
-            print(
-                "_________________runs automatically if active with NO prev logs"
-            )  # noqa
             return points
 
     @property

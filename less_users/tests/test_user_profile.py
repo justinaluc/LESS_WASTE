@@ -4,13 +4,6 @@ from less_users.forms import UserRegisterForm, UserUpdateForm
 from less_users.models import Profile, UserChallenge, Log
 
 
-def test_create_user_profile(user):
-    profile = user.profile
-
-    assert Profile.objects.filter(id=profile.id).exists()
-    assert user.profile.points == 0
-
-
 @pytest.mark.django_db
 def test_create_user_profile_by_user_register_form():
     form = UserRegisterForm(

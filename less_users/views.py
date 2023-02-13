@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 
 from django.contrib import messages
 from django.shortcuts import render, redirect
@@ -10,6 +10,7 @@ from django.views import View
 from django.views.generic import ListView, DetailView
 
 from challenges.models import Challenge
+from less import settings
 from less_users.forms import UserRegisterForm, UserUpdateForm
 from less_users.models import UserChallenge, Profile, Log
 
@@ -36,7 +37,7 @@ class RegisterView(View):
                 request,
                 f"Your account >>{user}<< has been created! You can log in now.",
             )
-            return redirect("home")
+            return redirect("login")
         return render(request, "less_users/register.html", {"form": form})
 
 
@@ -106,10 +107,7 @@ class MyChallengesView(LoginRequiredMixin, ListView):
         )
 
     def post(self, request, **kwargs):
-        return redirect("my_challenges")
-
-
-# return HttpResponseRedirect(reverse("my_challenges"), request.path_info)
+        return render(request, "less_users/my_challenges.html")
 
 
 class MyChallengeView(LoginRequiredMixin, DetailView):
@@ -120,6 +118,12 @@ class MyChallengeView(LoginRequiredMixin, DetailView):
 
     model = UserChallenge
     template_name = "less_users/my_challenge.html"
+
+    def get_queryset(self):
+        """filters user_challenge queryset to only logged-in user challenges"""
+        return UserChallenge.objects.select_related("challenge").filter(
+            user=self.request.user
+        )
 
 
 def activate_view(request, pk):
@@ -147,7 +151,7 @@ def event_view_done(request):
     else:
         if Challenge.objects.filter(pk=challenge_id).exists():
             points = Challenge.objects.get(pk=challenge_id).points
-            # check also not active user_challenges and their logs for frequency sake!
+            # check also not active user_challenges and their logs for frequency!
             if UserChallenge.objects.filter(
                 user_id=request.user, challenge_id=challenge_id
             ).exists():
@@ -180,12 +184,44 @@ def event_view_done(request):
                                 f"You have already done it within last {user_challenge.challenge.frequency} days",
                             )
                     else:
+                        # try to check previous logs, even for other user_challenges, but for the same user and challenge
+                        # and even if they are not active or are deleted, it counts points!
                         prev_logs = Log.objects.filter(
-                            user_challenge__challenge_id=challenge_id
-                        )
+                            user_challenge__user_id=request.user
+                        ).filter(user_challenge__challenge_id=challenge_id)
                         if prev_logs:
-                            print(20 * "*")
-                            print(prev_logs)
+                            last_log = prev_logs.latest("date").date.date()
+                            if (
+                                last_log
+                                + timedelta(
+                                    days=Challenge.objects.get(
+                                        pk=challenge_id
+                                    ).frequency
+                                )
+                                > date.today()
+                            ):
+                                messages.warning(
+                                    request,
+                                    f"You cannot get new points for this challenge yet: {user_challenge.challenge}. "
+                                    f"You have already done it within last {user_challenge.challenge.frequency} days",
+                                )
+                            else:
+                                new_points = user_challenge.get_points
+                                Log.objects.create(
+                                    user_challenge_id=user_challenge.id, points=points
+                                )
+                                my_profile = request.user.profile
+                                my_profile.points += points
+                                my_profile.save()
+                                messages.success(
+                                    request,
+                                    f"You have just got {new_points} points for challenge: {user_challenge.challenge}!",
+                                )
+                        else:
+                            messages.success(
+                                request,
+                                "Is it possible to reach this if/else part?!",
+                            )
                 else:
                     """stop user challenge, it is out of date"""
                     user_challenge.is_active = False
@@ -230,13 +266,13 @@ def event_view_delete(request):
 
 
 def view_events(request):
-    print("1")
-    if "done" in request.POST:
-        print("2")
-        event_view_done(request)
-    if "stop" in request.POST:
-        event_view_stop(request)
-    if "delete" in request.POST:
-        event_view_delete(request)
-    print("3")
-    return redirect("my_challenges")
+    if not request.user.is_authenticated:
+        return redirect("login")
+    else:
+        if "done" in request.POST:
+            event_view_done(request)
+        if "stop" in request.POST:
+            event_view_stop(request)
+        if "delete" in request.POST:
+            event_view_delete(request)
+        return redirect("my_challenges")
