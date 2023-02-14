@@ -1,6 +1,7 @@
 from datetime import date, timedelta
 
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
@@ -91,7 +92,6 @@ class MyChallengesView(LoginRequiredMixin, ListView):
         my_all_count = my_all.count()
         my_active = my_all.filter(is_active=True)
         my_visible = my_all.filter(is_deleted=False)
-        # check order value set from web page -> has to be fixed !!!!!!!!!!!!
         if request.GET.get("order_value"):
             order_value = request.GET.get("order_value")
             my_all = my_all.order_by(order_value)
@@ -168,10 +168,10 @@ def event_view_done(request):
                         new_points = user_challenge.get_points
                         if new_points == points:
                             Log.objects.create(
-                                user_challenge_id=user_challenge.id, points=points
+                                user_challenge_id=user_challenge.id, points=new_points
                             )
                             my_profile = request.user.profile
-                            my_profile.points += points
+                            my_profile.points += new_points
                             my_profile.save()
                             messages.success(
                                 request,
@@ -186,9 +186,11 @@ def event_view_done(request):
                     else:
                         # try to check previous logs, even for other user_challenges, but for the same user and challenge
                         # and even if they are not active or are deleted, it counts points!
-                        prev_logs = Log.objects.filter(
-                            user_challenge__user_id=request.user
-                        ).filter(user_challenge__challenge_id=challenge_id)
+                        prev_logs = (
+                            Log.objects.filter(user_challenge__user_id=request.user)
+                            .filter(user_challenge__challenge_id=challenge_id)
+                            .filter(points__gt=0)
+                        )
                         if prev_logs:
                             last_log = prev_logs.latest("date").date.date()
                             if (
@@ -206,12 +208,13 @@ def event_view_done(request):
                                     f"You have already done it within last {user_challenge.challenge.frequency} days",
                                 )
                             else:
-                                new_points = user_challenge.get_points
+                                new_points = points
                                 Log.objects.create(
-                                    user_challenge_id=user_challenge.id, points=points
+                                    user_challenge_id=user_challenge.id,
+                                    points=new_points,
                                 )
                                 my_profile = request.user.profile
-                                my_profile.points += points
+                                my_profile.points += new_points
                                 my_profile.save()
                                 messages.success(
                                     request,
@@ -265,14 +268,12 @@ def event_view_delete(request):
     return redirect("my_challenges")
 
 
+@login_required
 def view_events(request):
-    if not request.user.is_authenticated:
-        return redirect("login")
-    else:
-        if "done" in request.POST:
-            event_view_done(request)
-        if "stop" in request.POST:
-            event_view_stop(request)
-        if "delete" in request.POST:
-            event_view_delete(request)
-        return redirect("my_challenges")
+    if "done" in request.POST:
+        event_view_done(request)
+    if "stop" in request.POST:
+        event_view_stop(request)
+    if "delete" in request.POST:
+        event_view_delete(request)
+    return redirect("my_challenges")

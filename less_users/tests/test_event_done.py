@@ -1,7 +1,5 @@
 from datetime import date, timedelta
 
-import pytest
-
 from django.urls import reverse
 
 from freezegun import freeze_time
@@ -9,7 +7,6 @@ from freezegun import freeze_time
 from less_users.models import UserChallenge, Log
 
 
-@pytest.mark.django_db
 def test_view_events_unauthorised_follow(client):
     url = reverse("event")
     response = client.post(url, follow=True)
@@ -17,7 +14,6 @@ def test_view_events_unauthorised_follow(client):
     assert response.status_code == 200
 
 
-@pytest.mark.django_db
 def test_view_events_unauthorised(client):
     url = reverse("event")
     response = client.post(url)
@@ -26,7 +22,6 @@ def test_view_events_unauthorised(client):
     assert response.url == "/login/"
 
 
-@pytest.mark.django_db
 def test_view_events_done_flower(client, user):
     url = reverse("event")
     client.force_login(user)
@@ -42,7 +37,6 @@ def test_view_events_done_flower(client, user):
     assert message == "This challenge does not exist"
 
 
-@pytest.mark.django_db
 def test_view_events_done_challenge_pk_does_not_exist(client, user):
     url = reverse("event")
     client.force_login(user)
@@ -53,7 +47,6 @@ def test_view_events_done_challenge_pk_does_not_exist(client, user):
     assert "This challenge does not exist" == str(messages[0])
 
 
-@pytest.mark.django_db
 def test_view_events_done_userchallenge_pk_does_not_exist(
     client, user, challenge_1_day
 ):
@@ -67,7 +60,6 @@ def test_view_events_done_userchallenge_pk_does_not_exist(
     assert "You did not activate this challenge yet" == str(messages[0])
 
 
-@pytest.mark.django_db
 @freeze_time("2023-01-01")
 def test_view_events_done_add_points_if_first_log(client, user, challenge_3_month):
     url = reverse("event")
@@ -86,7 +78,6 @@ def test_view_events_done_add_points_if_first_log(client, user, challenge_3_mont
     assert last_log.date.date() == date(2023, 1, 1)
 
 
-@pytest.mark.django_db
 def test_view_events_done_add_points_if_frequency_period_passed(
     client, user, challenge_3_month
 ):
@@ -111,7 +102,6 @@ def test_view_events_done_add_points_if_frequency_period_passed(
         assert last_log.date.date() == date(2023, 1, 8)
 
 
-@pytest.mark.django_db
 def test_view_events_done_add_points_if_frequency_period_not_passed(
     client, user, challenge_3_month
 ):

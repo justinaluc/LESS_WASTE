@@ -17,7 +17,6 @@ def test_user_challenge_correct_creation(
     assert user_challenge.challenge == challenge_1_day
 
 
-@pytest.mark.django_db
 def test_user_challenge_deactivation_when_duration_passed(user, challenge_1_day):
     with freeze_time(date(2023, 1, 1)):
         new_challenge = UserChallenge(
@@ -40,7 +39,6 @@ TEST_DIV_DATA = (
 )
 
 
-@pytest.mark.django_db
 @pytest.mark.parametrize("date_start, date_today, expected", TEST_DIV_DATA)
 def test_user_challenge_model_days_left_3(
     user, challenge_3_month, date_start, date_today, expected
@@ -53,7 +51,6 @@ def test_user_challenge_model_days_left_3(
         assert new_challenge.days_left == expected
 
 
-@pytest.mark.django_db
 def test_user_challenge_model_days_left_1(user, challenge_1_day):
     new_challenge = UserChallenge(user=user, challenge=challenge_1_day)
     new_challenge.save()
@@ -63,7 +60,6 @@ def test_user_challenge_model_days_left_1(user, challenge_1_day):
     assert new_challenge.is_active
 
 
-@pytest.mark.django_db
 def test_user_challenge_get_points_for_new_challenge_day(user, challenge_1_day):
     user_challenge = UserChallenge.objects.create(user=user, challenge=challenge_1_day)
     user_log = Log.objects.create(
@@ -75,7 +71,6 @@ def test_user_challenge_get_points_for_new_challenge_day(user, challenge_1_day):
     assert user_challenge.challenge.points == user_log.points
 
 
-@pytest.mark.django_db
 def test_user_challenge_get_points_for_new_challenge_month_after_8_days(
     user, challenge_3_month
 ):
