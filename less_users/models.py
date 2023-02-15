@@ -36,7 +36,6 @@ class UserChallenge(models.Model):
                 total += log.points
         return total
 
-    @property
     def get_points(self) -> int:
         """add points to the particular Log (connected with user_challenge)
         if challenge is active and default frequency passed;

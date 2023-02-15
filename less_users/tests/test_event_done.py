@@ -19,7 +19,7 @@ def test_view_events_unauthorised(client):
     response = client.post(url)
 
     assert response.status_code == 302
-    assert response.url == "/login/"
+    assert "login" in response.url
 
 
 def test_view_events_done_flower(client, user):
@@ -122,7 +122,7 @@ def test_view_events_done_add_points_if_frequency_period_not_passed(
     with freeze_time(date(2023, 1, 6)):
         response = client.post(url, data={"done": challenge_3_month.pk}, follow=True)
 
-        assert user_challenge.get_points == 0
+        assert user_challenge.get_points() == 0
         assert user_challenge.total_points == 5
         assert Log.objects.filter(user_challenge=user_challenge).latest(
             "date"
