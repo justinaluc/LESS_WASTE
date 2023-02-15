@@ -9,8 +9,8 @@ from less_users.models import UserChallenge
 @pytest.fixture(scope="function")
 def register_data():
     return {
-        "username": "Karolina",
-        "email": "karolina.123@mail.com",
+        "username": "Karol",
+        "email": "karol.123@mail.com",
         "password1": "This!password%red%sphere321",
         "password2": "This!password%red%sphere321",
     }
