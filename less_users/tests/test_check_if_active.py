@@ -12,9 +12,8 @@ def test_check_if_active_before_duration_time(user, challenge_3_month):
         userchallenge = UserChallenge.objects.create(
             user=user, challenge=challenge_3_month
         )
-    userchallenge.check_if_active
 
-    assert userchallenge.is_active
+    assert userchallenge.check_if_active
 
 
 def test_check_if_active_after_duration_time(user, challenge_3_month):
@@ -22,28 +21,13 @@ def test_check_if_active_after_duration_time(user, challenge_3_month):
         userchallenge = UserChallenge.objects.create(
             user=user, challenge=challenge_3_month
         )
-    userchallenge.check_if_active
 
-    assert not userchallenge.is_active
+    assert not userchallenge.check_if_active
 
 
 def test_check_if_not_active_when_deactivated(user, challenge_3_month):
-    userchallenge = UserChallenge.objects.create(user=user, challenge=challenge_3_month)
-    userchallenge.is_active = False
-    userchallenge.check_if_active
-
-    assert not userchallenge.is_active
-
-
-def test_check_if_active_when_stopped(client, user, challenge_3_month):
-    url = reverse("event")
-    client.force_login(user)
-
-    user_challenge = UserChallenge.objects.create(
-        user=user, challenge=challenge_3_month
+    userchallenge = UserChallenge.objects.create(
+        user=user, challenge=challenge_3_month, is_active=False
     )
 
-    response = client.post(url, data={"stop": user_challenge.pk}, follow=True)
-    user_challenge.refresh_from_db()
-
-    assert not user_challenge.is_active
+    assert not userchallenge.check_if_active

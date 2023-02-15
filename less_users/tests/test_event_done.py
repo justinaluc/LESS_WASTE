@@ -18,8 +18,9 @@ def test_view_events_unauthorised(client):
     url = reverse("event")
     response = client.post(url)
 
+    print(response.url)
     assert response.status_code == 302
-    assert "login" in response.url
+    assert response.url == "/login/?next=/event/"
 
 
 def test_view_events_done_flower(client, user):

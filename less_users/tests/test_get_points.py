@@ -8,6 +8,7 @@ from less_users.models import UserChallenge, Log
 def test_get_points_for_userchallenge_before_first_log(user, challenge_3_month):
     userchallenge = UserChallenge.objects.create(user=user, challenge=challenge_3_month)
 
+    assert not userchallenge.log_set.exists()
     assert userchallenge.get_points() == challenge_3_month.points
 
 
@@ -31,13 +32,12 @@ def test_get_points_for_userchallenge_next_log_after_frequency(user, challenge_3
         assert points == challenge_3_month.points
         assert userchallenge.log_set.count() == 1
 
-    with freeze_time(date.today()):
-        new_points = userchallenge.get_points()
+    new_points = userchallenge.get_points()
 
-        Log.objects.create(user_challenge=userchallenge, points=new_points)
+    Log.objects.create(user_challenge=userchallenge, points=new_points)
 
-        assert new_points == challenge_3_month.points
-        assert userchallenge.log_set.count() == 2
+    assert new_points == challenge_3_month.points
+    assert userchallenge.log_set.count() == 2
 
 
 def test_get_points_0_for_userchallenge_next_log_before_frequency(
@@ -54,13 +54,12 @@ def test_get_points_0_for_userchallenge_next_log_before_frequency(
         assert points == challenge_3_month.points
         assert userchallenge.log_set.count() == 1
 
-    with freeze_time(date.today()):
-        new_points = userchallenge.get_points()
+    new_points = userchallenge.get_points()
 
-        Log.objects.create(user_challenge=userchallenge, points=new_points)
+    Log.objects.create(user_challenge=userchallenge, points=new_points)
 
-        assert new_points == 0
-        assert userchallenge.log_set.count() == 2
+    assert new_points == 0
+    assert userchallenge.log_set.count() == 2
 
 
 def test_get_points_0_for_userchallenge_after_duration_time(user, challenge_3_month):
@@ -77,9 +76,9 @@ def test_get_points_0_for_userchallenge_after_duration_time(user, challenge_3_mo
 
 
 def test_get_points_0_for_userchallenge_not_active(user, challenge_3_month):
-    userchallenge = UserChallenge.objects.create(user=user, challenge=challenge_3_month)
-
-    userchallenge.is_active = False
+    userchallenge = UserChallenge.objects.create(
+        user=user, challenge=challenge_3_month, is_active=False
+    )
 
     assert not userchallenge.is_active
 
