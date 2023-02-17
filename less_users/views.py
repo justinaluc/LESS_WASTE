@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date, datetime
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -155,36 +155,48 @@ def event_view_done(request):
         messages.warning(request, "This challenge does not exist")
     except Challenge.DoesNotExist:
         messages.warning(request, "This challenge does not exist")
-    user_challenges = UserChallenge.objects.filter(
-        user_id=request.user,
-        challenge_id=challenge_id,
-    )
-    if user_challenges.exists():
-        active_challenge = user_challenges.latest("start_date")
-        new_points = active_challenge.get_points()
-        if new_points:
-            # check previous logs before getting points
-            latest_log = Log.objects.filter(
-                user_challenge__user_id=request.user,
-                user_challenge__challenge_id=challenge_id,
-            ).latest("date")
-            # check if latest log is before or after frequency time
-            if (date.today() - latest_log.date()).days >= challenge.frequency:
-                Log.objects.create(user_challenge=active_challenge)
+    else:
+        challenge_id = int(request.POST.get("done"))
+        user_challenges = UserChallenge.objects.filter(
+            user_id=request.user,
+            challenge_id=challenge_id,
+        )
+        if user_challenges.exists():
+            latest_challenge = user_challenges.latest("start_date")
+            new_points = latest_challenge.get_points()
+            if new_points:
+                # check previous logs before getting points
+                challenge_logs = Log.objects.filter(
+                    user_challenge__user_id=request.user,
+                    user_challenge__challenge_id=challenge_id,
+                )
+                if challenge_logs:
+                    latest_log = challenge_logs.latest("date")
+                    # check if latest log is before or after frequency time
+                    if (
+                        datetime.utcnow().date() - latest_log.date.date()
+                    ).days >= challenge.frequency:
+                        Log.objects.create(
+                            user_challenge=latest_challenge, points=new_points
+                        )
+                    else:
+                        messages.warning(
+                            request,
+                            f"You cannot get points for this challenge {challenge} yet."
+                            f"Frequency is too short from lastly gained points.",
+                        )
+                else:
+                    Log.objects.create(
+                        user_challenge=latest_challenge, points=new_points
+                    )
             else:
                 messages.warning(
                     request,
-                    f"You cannot get points for this challenge {challenge} yet."
-                    f"Frequency is too short from lastly gained points.",
+                    f"You cannot get points for this challenge {challenge} yet. "
+                    f"Your challenge is not active anymore.",
                 )
         else:
-            messages.warning(
-                request,
-                f"You cannot get points for this challenge {challenge} yet."
-                f"Frequency is too short from lastly gained points or your challenge is not active anymore.",
-            )
-    else:
-        messages.warning(request, f"You did not try this challenge {challenge} yet")
+            messages.warning(request, f"You did not activate this challenge yet")
     return redirect("my_challenges")
 
 

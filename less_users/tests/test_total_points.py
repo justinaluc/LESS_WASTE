@@ -29,15 +29,13 @@ def test_total_points_for_userchallenge_next_log_after_frequency(
             user_challenge=userchallenge, points=userchallenge.get_points()
         )
 
-        assert userchallenge.total_points == challenge_3_month.points
+        assert challenge_3_month.points == 5
+        assert userchallenge.total_points == 5
 
-    with freeze_time(date.today()):
-        Log.objects.create(
-            user_challenge=userchallenge, points=userchallenge.get_points()
-        )
+    Log.objects.create(user_challenge=userchallenge, points=userchallenge.get_points())
 
-        assert userchallenge.log_set.count() == 2
-        assert userchallenge.total_points == 2 * challenge_3_month.points
+    assert userchallenge.log_set.count() == 2
+    assert userchallenge.total_points == 2 * 5
 
 
 def test_total_points_for_userchallenge_next_log_before_frequency(
@@ -52,12 +50,10 @@ def test_total_points_for_userchallenge_next_log_before_frequency(
         )
 
         assert userchallenge.log_set.count() == 1
-        assert userchallenge.total_points == challenge_3_month.points
+        assert challenge_3_month.points == 5
+        assert userchallenge.total_points == 5
 
-    with freeze_time(date.today()):
-        Log.objects.create(
-            user_challenge=userchallenge, points=userchallenge.get_points()
-        )
+    Log.objects.create(user_challenge=userchallenge, points=userchallenge.get_points())
 
-        assert userchallenge.log_set.count() == 2
-        assert userchallenge.total_points == challenge_3_month.points
+    assert userchallenge.log_set.count() == 2
+    assert userchallenge.total_points == challenge_3_month.points

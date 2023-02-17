@@ -33,9 +33,7 @@ def test_view_events_done_flower(client, user):
 
     assert len(messages) == 1
 
-    message = str(messages[0])
-
-    assert message == "This challenge does not exist"
+    assert "This challenge does not exist" == str(messages[0])
 
 
 def test_view_events_done_challenge_pk_does_not_exist(client, user):
@@ -73,6 +71,9 @@ def test_view_events_done_add_points_if_first_log(client, user, challenge_3_mont
     assert not Log.objects.filter(user_challenge=user_challenge).exists()
 
     response = client.post(url, data={"done": challenge_3_month.pk}, follow=True)
+
+    assert response.status_code == 200
+
     last_log = Log.objects.filter(user_challenge=user_challenge).latest("date")
 
     assert last_log.points == challenge_3_month.points
@@ -85,46 +86,45 @@ def test_view_events_done_add_points_if_frequency_period_passed(
     url = reverse("event")
     client.force_login(user)
 
-    with freeze_time(date(2023, 1, 1)):
-        user_challenge = UserChallenge.objects.create(
-            user=user, challenge=challenge_3_month
-        )
-        Log.objects.create(
-            user_challenge=user_challenge, points=challenge_3_month.points
-        )
+    user_challenge = UserChallenge.objects.create(
+        user=user, challenge=challenge_3_month
+    )
+    Log.objects.create(user_challenge=user_challenge, points=challenge_3_month.points)
+    last_log = Log.objects.filter(user_challenge=user_challenge).latest("date")
 
-        assert challenge_3_month.frequency == 7
+    assert last_log.points == challenge_3_month.points
+    assert last_log.date.date() == date.today()
 
-    with freeze_time(date(2023, 1, 1) + timedelta(days=7)):
+    assert challenge_3_month.frequency == 7
+
+    with freeze_time(date.today() + timedelta(days=7)):
         response = client.post(url, data={"done": challenge_3_month.pk}, follow=True)
+
         last_log = Log.objects.filter(user_challenge=user_challenge).latest("date")
 
         assert last_log.points == challenge_3_month.points
-        assert last_log.date.date() == date(2023, 1, 8)
+        assert last_log.date.date() == date.today()
 
 
-def test_view_events_done_add_points_if_frequency_period_not_passed(
+def test_view_events_done_add_points_if_frequency_period_did_not_pass(
     client, user, challenge_3_month
 ):
     url = reverse("event")
     client.force_login(user)
 
-    with freeze_time(date(2023, 1, 1)):
-        user_challenge = UserChallenge.objects.create(
-            user=user, challenge=challenge_3_month
-        )
-        Log.objects.create(
-            user_challenge=user_challenge, points=challenge_3_month.points
-        )
+    user_challenge = UserChallenge.objects.create(
+        user=user, challenge=challenge_3_month
+    )
+    Log.objects.create(user_challenge=user_challenge, points=challenge_3_month.points)
 
-        assert challenge_3_month.frequency == 7
-        assert user_challenge.total_points == 5
+    assert challenge_3_month.frequency == 7
+    assert user_challenge.total_points == 5
 
-    with freeze_time(date(2023, 1, 6)):
+    with freeze_time(date.today() + timedelta(days=3)):
         response = client.post(url, data={"done": challenge_3_month.pk}, follow=True)
 
         assert user_challenge.get_points() == 0
         assert user_challenge.total_points == 5
         assert Log.objects.filter(user_challenge=user_challenge).latest(
             "date"
-        ).date.date() == date(2023, 1, 1)
+        ).date.date() == date.today() - timedelta(days=3)

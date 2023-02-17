@@ -33,10 +33,9 @@ def test_view_challenges_with_my_challenges_active_when_authorised(
     response = client.get(url)
 
     assert response.status_code == 200
+    assert len(challenges) == 3
 
     context = response.context
-    print(set(context["my_challenges"]))
-    print(set(challenges))
 
     assert len(context["my_challenges"]) == 2
     assert len(challenges) == 3
@@ -70,4 +69,31 @@ def test_view_activate_user_challenge(client, user, challenge_1_day):
         UserChallenge.objects.filter(user=user)
         .filter(challenge=challenge_1_day)
         .exists()
+    )
+
+
+def test_view_do_not_activate_user_challenge_if_same_is_active(
+    client, user, challenge_1_day
+):
+    client.force_login(user)
+    url = reverse("activate_challenge", args=[challenge_1_day.pk])
+    response = client.get(url, follow=True)
+
+    assert response.status_code == 200
+    assert (
+        UserChallenge.objects.filter(user=user)
+        .filter(challenge=challenge_1_day)
+        .count()
+        == 1
+    )
+
+    url = reverse("activate_challenge", args=[challenge_1_day.pk])
+    response = client.get(url, follow=True)
+
+    assert response.status_code == 200
+    assert (
+        UserChallenge.objects.filter(user=user)
+        .filter(challenge=challenge_1_day)
+        .count()
+        == 1
     )

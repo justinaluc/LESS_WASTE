@@ -10,7 +10,6 @@ class LogInline(admin.TabularInline):
 
 
 class LogAdmin(admin.ModelAdmin):
-
     # show below data in logs list
     list_display = ("user_challenge", "date", "points")
 
@@ -20,7 +19,7 @@ class UserChallengeAdmin(admin.ModelAdmin):
     inlines = (LogInline,)
 
     # show below data in user challenge list
-    list_display = ("user", "challenge", "is_active", "start_date")
+    list_display = ("user", "challenge", "is_active", "is_deleted", "start_date")
     readonly_fields = ["user", "challenge", "start_date"]
     # add filter for user
     list_filter = ("user",)
