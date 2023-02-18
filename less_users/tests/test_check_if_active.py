@@ -9,7 +9,7 @@ def test_check_if_active_before_duration_time(user, challenge_3_month):
         user=user, challenge=challenge_3_month, start_date=start_date
     )
 
-    assert userchallenge.check_if_active()
+    assert userchallenge.check_if_active
     assert userchallenge.start_date == start_date
 
 
@@ -19,7 +19,7 @@ def test_check_if_active_after_duration_time(user, challenge_3_month):
         user=user, challenge=challenge_3_month, start_date=start_date
     )
 
-    assert not userchallenge.check_if_active()
+    assert not userchallenge.check_if_active
     assert userchallenge.start_date == start_date
 
 
@@ -31,4 +31,4 @@ def test_check_if_not_active_when_deactivated(user, challenge_3_month):
         start_date=datetime.utcnow(),
     )
 
-    assert not userchallenge.check_if_active()
+    assert not userchallenge.check_if_active

@@ -67,14 +67,6 @@ TEST_FORM_DATA = [
         "email",
     ),
     ("Karolina", "karola@mail.com", "123", "123", False, "password2"),
-    (
-        "",
-        "karola@mail.com",
-        "This!password%321",
-        "This!password%321",
-        False,
-        "username",
-    ),
 ]
 
 

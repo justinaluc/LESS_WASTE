@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import datetime
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -163,8 +163,8 @@ def event_view_done(request):
         )
         if user_challenges.exists():
             latest_challenge = user_challenges.latest("start_date")
-            new_points = latest_challenge.get_points()
             if latest_challenge.is_active:
+                new_points = latest_challenge.get_points()
                 if new_points:
                     # check previous logs before getting points
                     challenge_logs = Log.objects.filter(
@@ -180,6 +180,11 @@ def event_view_done(request):
                             Log.objects.create(
                                 user_challenge=latest_challenge, points=new_points
                             )
+
+                            messages.success(
+                                request,
+                                f"You just gained {new_points} for the challenge {challenge}!",
+                            )
                         else:
                             messages.warning(
                                 request,
@@ -190,6 +195,10 @@ def event_view_done(request):
                         Log.objects.create(
                             user_challenge=latest_challenge, points=new_points
                         )
+                        messages.success(
+                            request,
+                            f"You just gained {new_points} for the challenge {challenge}!",
+                        )
                 else:
                     messages.warning(
                         request,
@@ -199,7 +208,7 @@ def event_view_done(request):
             else:
                 messages.warning(
                     request,
-                    f"You cannot get points for this challenge {challenge} yet. "
+                    f"You cannot get points for this challenge {challenge}. "
                     f"Your challenge is not active anymore.",
                 )
         else:

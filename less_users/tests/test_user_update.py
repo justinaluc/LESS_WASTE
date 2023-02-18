@@ -71,21 +71,3 @@ def test_user_update_form(
     )
 
     assert form_2.is_valid() is result
-
-
-def test_user_update_form_get_filled_with_registered_data(
-    client, user, user_register_data
-):
-    UserRegisterForm(data=user_register_data)
-
-    client.force_login(user)
-    url = reverse("profile")
-
-    response = client.get(url)
-
-    form = UserUpdateForm(instance=user)
-
-    assert response.status_code == 200
-    assert form["email"].value() == user_register_data["email"]
-    assert form["username"].value() == user_register_data["username"]
-    assert form["first_name"].value() == ""

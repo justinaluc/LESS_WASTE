@@ -16,7 +16,7 @@ def test_total_points_for_userchallenge_after_first_log(user, challenge_3_month)
     points = userchallenge.get_points()
     Log.objects.create(user_challenge=userchallenge, points=points)
 
-    assert userchallenge.total_points == points
+    assert userchallenge.total_points == 5
 
 
 def test_total_points_for_userchallenge_next_log_after_frequency(

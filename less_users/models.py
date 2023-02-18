@@ -47,7 +47,7 @@ class UserChallenge(models.Model):
         points = self.challenge.points
         frequency = self.challenge.frequency
         date_today = date.today()
-        self.check_if_active()
+        self.check_if_active
         if not self.is_active:
             return 0
         if self.log_set.exists():
@@ -68,18 +68,13 @@ class UserChallenge(models.Model):
         date_today = date.today()
         return (end_date - date_today).days
 
+    @property
     def check_if_active(self) -> bool:
         """check if challenge is not out-of-date;
         deactivate user_challenge if days_left is less than 0"""
         if self.days_left < 0:
             self.is_active = False
         return self.is_active
-
-    def deactivate(self, save=False):
-        self.is_active = False
-        self.is_deleted = True
-        if save:
-            self.save()
 
 
 class Log(models.Model):

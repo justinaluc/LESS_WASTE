@@ -17,16 +17,6 @@ def register_data():
 
 
 @pytest.fixture(scope="function")
-def user_register_data():
-    return {
-        "username": "Klara_pierwsza",
-        "email": "klara_the_1@test.com",
-        "password1": "testKlara123",
-        "password2": "testKlara123",
-    }
-
-
-@pytest.fixture(scope="function")
 def user(db):
     return User.objects.create_user(
         "Klara_pierwsza", "klara_the_1@test.com", "testKlara123"
