@@ -26,18 +26,13 @@ def test_get_points_for_userchallenge_next_log_after_frequency(user, challenge_3
             user=user, challenge=challenge_3_month
         )
         points = userchallenge.get_points()
-
         Log.objects.create(user_challenge=userchallenge, points=points)
 
         assert points == challenge_3_month.points
-        assert userchallenge.log_set.count() == 1
 
     new_points = userchallenge.get_points()
 
-    Log.objects.create(user_challenge=userchallenge, points=new_points)
-
     assert new_points == challenge_3_month.points
-    assert userchallenge.log_set.count() == 2
 
 
 def test_get_points_0_for_userchallenge_next_log_before_frequency(
@@ -48,18 +43,13 @@ def test_get_points_0_for_userchallenge_next_log_before_frequency(
             user=user, challenge=challenge_3_month
         )
         points = userchallenge.get_points()
-
         Log.objects.create(user_challenge=userchallenge, points=points)
 
         assert points == challenge_3_month.points
-        assert userchallenge.log_set.count() == 1
 
     new_points = userchallenge.get_points()
 
-    Log.objects.create(user_challenge=userchallenge, points=new_points)
-
     assert new_points == 0
-    assert userchallenge.log_set.count() == 2
 
 
 def test_get_points_0_for_userchallenge_after_duration_time(user, challenge_3_month):

@@ -26,7 +26,7 @@ def test_user_challenge_deactivation_when_duration_passed(user, challenge_1_day)
         new_challenge.save()
 
     with freeze_time(date(2023, 1, 5)):
-        new_challenge.check_if_active
+        new_challenge.check_if_active()
 
         assert not new_challenge.is_active
 
@@ -54,7 +54,7 @@ def test_user_challenge_model_days_left_3(
 def test_user_challenge_model_days_left_1(user, challenge_1_day):
     new_challenge = UserChallenge(user=user, challenge=challenge_1_day)
     new_challenge.save()
-    new_challenge.check_if_active
+    new_challenge.check_if_active()
 
     assert new_challenge.days_left == 1
     assert new_challenge.is_active
@@ -66,7 +66,7 @@ def test_user_challenge_get_points_for_new_challenge_day(user, challenge_1_day):
         user_challenge=user_challenge, points=challenge_1_day.points
     )
 
-    user_challenge.get_points
+    user_challenge.get_points()
 
     assert user_challenge.challenge.points == user_log.points
 

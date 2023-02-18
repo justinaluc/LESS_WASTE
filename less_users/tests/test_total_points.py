@@ -13,9 +13,10 @@ def test_total_points_for_userchallenge_before_first_log(user, challenge_3_month
 
 def test_total_points_for_userchallenge_after_first_log(user, challenge_3_month):
     userchallenge = UserChallenge.objects.create(user=user, challenge=challenge_3_month)
-    Log.objects.create(user_challenge=userchallenge, points=userchallenge.get_points())
+    points = userchallenge.get_points()
+    Log.objects.create(user_challenge=userchallenge, points=points)
 
-    assert userchallenge.total_points == challenge_3_month.points
+    assert userchallenge.total_points == points
 
 
 def test_total_points_for_userchallenge_next_log_after_frequency(
@@ -25,17 +26,17 @@ def test_total_points_for_userchallenge_next_log_after_frequency(
         userchallenge = UserChallenge.objects.create(
             user=user, challenge=challenge_3_month
         )
-        Log.objects.create(
-            user_challenge=userchallenge, points=userchallenge.get_points()
-        )
+        points_1 = userchallenge.get_points()
+        Log.objects.create(user_challenge=userchallenge, points=points_1)
 
-        assert challenge_3_month.points == 5
-        assert userchallenge.total_points == 5
+        assert points_1 == 5
+        assert userchallenge.total_points == points_1
 
-    Log.objects.create(user_challenge=userchallenge, points=userchallenge.get_points())
+    points_2 = userchallenge.get_points()
+    Log.objects.create(user_challenge=userchallenge, points=points_2)
 
-    assert userchallenge.log_set.count() == 2
-    assert userchallenge.total_points == 2 * 5
+    assert points_2 == 5
+    assert userchallenge.total_points == points_1 + points_2
 
 
 def test_total_points_for_userchallenge_next_log_before_frequency(
@@ -45,15 +46,14 @@ def test_total_points_for_userchallenge_next_log_before_frequency(
         userchallenge = UserChallenge.objects.create(
             user=user, challenge=challenge_3_month
         )
-        Log.objects.create(
-            user_challenge=userchallenge, points=userchallenge.get_points()
-        )
+        points_1 = userchallenge.get_points()
+        Log.objects.create(user_challenge=userchallenge, points=points_1)
 
-        assert userchallenge.log_set.count() == 1
-        assert challenge_3_month.points == 5
-        assert userchallenge.total_points == 5
+        assert points_1 == 5
+        assert userchallenge.total_points == points_1
 
-    Log.objects.create(user_challenge=userchallenge, points=userchallenge.get_points())
+    points_2 = userchallenge.get_points()
+    Log.objects.create(user_challenge=userchallenge, points=points_2)
 
-    assert userchallenge.log_set.count() == 2
-    assert userchallenge.total_points == challenge_3_month.points
+    assert points_2 == 0
+    assert userchallenge.total_points == points_1 + points_2

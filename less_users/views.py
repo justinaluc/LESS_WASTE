@@ -164,30 +164,37 @@ def event_view_done(request):
         if user_challenges.exists():
             latest_challenge = user_challenges.latest("start_date")
             new_points = latest_challenge.get_points()
-            if new_points:
-                # check previous logs before getting points
-                challenge_logs = Log.objects.filter(
-                    user_challenge__user_id=request.user,
-                    user_challenge__challenge_id=challenge_id,
-                )
-                if challenge_logs:
-                    latest_log = challenge_logs.latest("date")
-                    # check if latest log is before or after frequency time
-                    if (
-                        datetime.utcnow().date() - latest_log.date.date()
-                    ).days >= challenge.frequency:
+            if latest_challenge.is_active:
+                if new_points:
+                    # check previous logs before getting points
+                    challenge_logs = Log.objects.filter(
+                        user_challenge__user_id=request.user,
+                        user_challenge__challenge_id=challenge_id,
+                    )
+                    if challenge_logs:
+                        latest_log = challenge_logs.latest("date")
+                        # check if latest log is before or after frequency time
+                        if (
+                            datetime.utcnow().date() - latest_log.date.date()
+                        ).days >= challenge.frequency:
+                            Log.objects.create(
+                                user_challenge=latest_challenge, points=new_points
+                            )
+                        else:
+                            messages.warning(
+                                request,
+                                f"You cannot get points for this challenge {challenge} yet."
+                                f"Frequency is too short from lastly gained points.",
+                            )
+                    else:
                         Log.objects.create(
                             user_challenge=latest_challenge, points=new_points
                         )
-                    else:
-                        messages.warning(
-                            request,
-                            f"You cannot get points for this challenge {challenge} yet."
-                            f"Frequency is too short from lastly gained points.",
-                        )
                 else:
-                    Log.objects.create(
-                        user_challenge=latest_challenge, points=new_points
+                    messages.warning(
+                        request,
+                        f"You cannot get points for this challenge {challenge} yet."
+                        f"Frequency is too short from lastly gained points.",
                     )
             else:
                 messages.warning(
@@ -217,9 +224,7 @@ def event_view_delete(request):
     """delete user challenge from the list of my challenges (hide it with 'is_deleted' parameter set into True)"""
     user_challenge_id = int(request.POST.get("delete"))
     user_challenge = UserChallenge.objects.get(id=user_challenge_id)
-    user_challenge.is_active = False
-    user_challenge.is_deleted = True
-    user_challenge.save()
+    user_challenge.deactivate(save=True)
     messages.warning(
         request, f"You have deleted {user_challenge.challenge} from your challenges."
     )
