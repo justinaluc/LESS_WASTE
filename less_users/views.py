@@ -132,14 +132,15 @@ class MyChallengeView(LoginRequiredMixin, DetailView):
 def activate_view(request, pk):
     """it checks if there exists active user_challenge for logged-in user and chosen challenge;
     if not- it creates new active user_challenge"""
+    user_id = request.user
     user_challenge = UserChallenge.objects.filter(
-        user=request.user, challenge_id=pk, is_active=True, is_deleted=False
+        user=user_id, challenge_id=pk, is_active=True, is_deleted=False
     )
     if user_challenge.exists():
         messages.warning(request, "You still have this challenge active!")
         return redirect("my_challenges")
     else:
-        UserChallenge.objects.create(user=request.user, challenge_id=pk)
+        UserChallenge.objects.create(user=user_id, challenge_id=pk)
         messages.success(request, "You activated new challenge!")
         return HttpResponseRedirect(reverse("challenge_detail", args=[str(pk)]))
 
@@ -157,18 +158,19 @@ def event_view_done(request):
         messages.warning(request, "This challenge does not exist")
     else:
         challenge_id = int(request.POST.get("done"))
+        user_id = request.user
         user_challenges = UserChallenge.objects.filter(
-            user_id=request.user,
+            user_id=user_id,
             challenge_id=challenge_id,
         )
         if user_challenges.exists():
             latest_challenge = user_challenges.latest("start_date")
+            new_points = latest_challenge.get_points()
             if latest_challenge.is_active:
-                new_points = latest_challenge.get_points()
                 if new_points:
                     # check previous logs before getting points
                     challenge_logs = Log.objects.filter(
-                        user_challenge__user_id=request.user,
+                        user_challenge__user_id=user_id,
                         user_challenge__challenge_id=challenge_id,
                     )
                     if challenge_logs:
@@ -180,32 +182,38 @@ def event_view_done(request):
                             Log.objects.create(
                                 user_challenge=latest_challenge, points=new_points
                             )
-
+                            user_profile = Profile.objects.get(user_id=user_id)
+                            user_profile.points += new_points
+                            user_profile.save()
                             messages.success(
                                 request,
-                                f"You just gained {new_points} for the challenge {challenge}!",
+                                f"You just gained {new_points} points for the challenge {challenge}!",
                             )
                         else:
                             messages.warning(
                                 request,
-                                f"You cannot get points for this challenge {challenge} yet."
+                                f"You cannot get points for this challenge {challenge} yet. "
                                 f"Frequency is too short from lastly gained points.",
                             )
                     else:
+                        user_profile = Profile.objects.get(user_id=user_id)
                         Log.objects.create(
                             user_challenge=latest_challenge, points=new_points
                         )
+                        user_profile.points += new_points
+                        user_profile.save()
                         messages.success(
                             request,
-                            f"You just gained {new_points} for the challenge {challenge}!",
+                            f"You just gained {new_points} points for the challenge {challenge}!",
                         )
                 else:
                     messages.warning(
                         request,
-                        f"You cannot get points for this challenge {challenge} yet."
+                        f"You cannot get points for this challenge {challenge} yet. "
                         f"Frequency is too short from lastly gained points.",
                     )
             else:
+                latest_challenge.deactivate(save=True)
                 messages.warning(
                     request,
                     f"You cannot get points for this challenge {challenge}. "
@@ -218,25 +226,50 @@ def event_view_done(request):
 
 def event_view_stop(request):
     """stop user challenge despite its duration"""
-    user_challenge_id = int(request.POST.get("stop"))
-    user_challenge = UserChallenge.objects.get(id=user_challenge_id)
-    user_challenge.is_active = False
-    user_challenge.save()
-    messages.info(
-        request,
-        f"You stopped challenge: {user_challenge.challenge}. You can activate the new one.",
-    )
+    try:
+        user_challenge_id = int(request.POST.get("stop"))
+        user_challenge = UserChallenge.objects.get(id=user_challenge_id)
+    except ValueError:
+        messages.warning(request, "This user_challenge does not exist")
+    except UserChallenge.DoesNotExist:
+        messages.warning(request, "This user_challenge does not exist")
+    else:
+        if user_challenge.is_active:
+            user_challenge.deactivate(save=True)
+            messages.info(
+                request,
+                f"You stopped challenge: {user_challenge.challenge}. You can activate the new one.",
+            )
+        else:
+            messages.info(
+                request,
+                f"You have deactivated {user_challenge.challenge} challenge already.",
+            )
     return redirect("my_challenges")
 
 
 def event_view_delete(request):
-    """delete user challenge from the list of my challenges (hide it with 'is_deleted' parameter set into True)"""
-    user_challenge_id = int(request.POST.get("delete"))
-    user_challenge = UserChallenge.objects.get(id=user_challenge_id)
-    user_challenge.deactivate(save=True)
-    messages.warning(
-        request, f"You have deleted {user_challenge.challenge} from your challenges."
-    )
+    """delete user_challenge from the list of my challenges"""
+    try:
+        user_challenge_id = int(request.POST.get("delete"))
+        user_challenge = UserChallenge.objects.get(id=user_challenge_id)
+    except ValueError:
+        messages.warning(request, "This user_challenge does not exist")
+    except UserChallenge.DoesNotExist:
+        messages.warning(request, "This user_challenge does not exist")
+    else:
+        if user_challenge.is_deleted:
+            messages.info(
+                request,
+                f"You have already deleted this challenge from your challenges before.",
+            )
+        else:
+            user_challenge = UserChallenge.objects.get(id=user_challenge_id)
+            user_challenge.hide(save=True)
+            messages.warning(
+                request,
+                f"You have deleted {user_challenge.challenge} from your challenges.",
+            )
     return redirect("my_challenges")
 
 

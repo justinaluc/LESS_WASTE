@@ -1,4 +1,7 @@
+from datetime import datetime, timedelta
+
 import pytest
+from django.urls import reverse
 
 from less_users.forms import UserRegisterForm, UserUpdateForm
 from less_users.models import Profile, UserChallenge, Log
@@ -59,16 +62,7 @@ def test_do_not_update_user_profile_invalid_username_in_update_form(user):
     assert "Enter a valid username" in form.errors["username"][0]
 
 
-def test_change_user_profile_points_by_clicking_done(user, challenge_2_week):
-    user_challenge = UserChallenge.objects.create(user=user, challenge=challenge_2_week)
-    user_challenge.check_if_active
-    user_challenge.get_points
+def test_check_profile_creation_when_user_created(user):
+    new_user = user
 
-    points = challenge_2_week.points
-    Log.objects.create(user_challenge_id=user_challenge.id, points=points)
-
-    my_profile = user.profile
-    my_profile.points += points
-    my_profile.save()
-
-    assert my_profile.points == points
+    assert new_user.profile.points == 0
