@@ -42,7 +42,9 @@ def test_event_delete_userchallenge(client, user, challenge_3_month):
     assert user_challenge.is_deleted
 
 
-def test_event_cannot_delete_deleted_userchallenge(client, user, challenge_3_month):
+def test_event_delete_cannot_delete_deleted_userchallenge(
+    client, user, challenge_3_month
+):
     url = reverse("event")
     client.force_login(user)
 

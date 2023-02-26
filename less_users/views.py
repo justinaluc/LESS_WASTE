@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -11,9 +11,8 @@ from django.views import View
 from django.views.generic import ListView, DetailView
 
 from challenges.models import Challenge
-from less import settings
 from less_users.forms import UserRegisterForm, UserUpdateForm
-from less_users.models import UserChallenge, Profile, Log
+from less_users.models import UserChallenge, Log
 
 
 class HomeView(View):
@@ -128,6 +127,23 @@ class MyChallengeView(LoginRequiredMixin, DetailView):
             user=self.request.user
         )
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        my_challenge = self.object
+        context["date_now"] = datetime.utcnow().date()
+        context["days_left"] = my_challenge.days_left
+        context["date_end"] = (
+            my_challenge.start_date + timedelta(days=self.object.challenge.duration)
+        ).date
+        try:
+            last_log = my_challenge.log_set.latest("date").date
+            date_next = last_log + timedelta(days=my_challenge.challenge.frequency)
+            context["last_log"] = last_log.date
+            context["date_next"] = date_next.date
+        except Log.DoesNotExist:
+            context["date_next"] = False
+        return context
+
 
 def activate_view(request, pk):
     """it checks if there exists active user_challenge for logged-in user and chosen challenge;
@@ -157,10 +173,10 @@ def event_view_done(request):
     except Challenge.DoesNotExist:
         messages.warning(request, "This challenge does not exist")
     else:
-        challenge_id = int(request.POST.get("done"))
-        user_id = request.user
+        user = request.user
+        user_profile = user.profile
         user_challenges = UserChallenge.objects.filter(
-            user_id=user_id,
+            user_id=user,
             challenge_id=challenge_id,
         )
         if user_challenges.exists():
@@ -168,26 +184,25 @@ def event_view_done(request):
             new_points = latest_challenge.get_points()
             if latest_challenge.is_active:
                 if new_points:
-                    # check previous logs before getting points
+                    """check previous logs before getting points"""
                     challenge_logs = Log.objects.filter(
-                        user_challenge__user_id=user_id,
+                        user_challenge__user_id=user,
                         user_challenge__challenge_id=challenge_id,
                     )
                     if challenge_logs:
                         latest_log = challenge_logs.latest("date")
-                        # check if latest log is before or after frequency time
+                        """check if latest log is before or after frequency time"""
                         if (
                             datetime.utcnow().date() - latest_log.date.date()
                         ).days >= challenge.frequency:
                             Log.objects.create(
                                 user_challenge=latest_challenge, points=new_points
                             )
-                            user_profile = Profile.objects.get(user_id=user_id)
                             user_profile.points += new_points
                             user_profile.save()
                             messages.success(
                                 request,
-                                f"You just gained {new_points} points for the challenge {challenge}!",
+                                f"You just gained {new_points} points for this challenge {challenge} again!",
                             )
                         else:
                             messages.warning(
@@ -196,7 +211,6 @@ def event_view_done(request):
                                 f"Frequency is too short from lastly gained points.",
                             )
                     else:
-                        user_profile = Profile.objects.get(user_id=user_id)
                         Log.objects.create(
                             user_challenge=latest_challenge, points=new_points
                         )
@@ -204,7 +218,7 @@ def event_view_done(request):
                         user_profile.save()
                         messages.success(
                             request,
-                            f"You just gained {new_points} points for the challenge {challenge}!",
+                            f"You just gained first {new_points} points for this challenge {challenge}!",
                         )
                 else:
                     messages.warning(
@@ -224,6 +238,7 @@ def event_view_done(request):
     return redirect("my_challenges")
 
 
+@login_required
 def event_view_stop(request):
     """stop user challenge despite its duration"""
     try:
@@ -248,6 +263,7 @@ def event_view_stop(request):
     return redirect("my_challenges")
 
 
+@login_required
 def event_view_delete(request):
     """delete user_challenge from the list of my challenges"""
     try:
